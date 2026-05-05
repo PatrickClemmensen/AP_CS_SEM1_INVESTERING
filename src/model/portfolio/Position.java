@@ -6,12 +6,22 @@ import model.asset.Asset;
 
 public class Position implements Rankable, CSVSerializeable {
     // TODO: declare fields (asset, quantity, averageBuyPrice)
+    // Note: averageBuyPrice should NOT be final — it updates on each additional purchase
 
     public Position(Asset asset, int quantity, double averageBuyPrice) {
         // TODO: initialize fields
     }
 
-    // TODO: add getters
+    // TODO: add getters for asset, quantity, averageBuyPrice
+
+    public void addQuantity(int quantity) {
+        // TODO: add the given quantity to the current quantity
+    }
+
+    public void setAverageBuyPrice(double averageBuyPrice) {
+        // TODO: update the averageBuyPrice
+        // Note: this is called by PortfolioService after recalculating the weighted average
+    }
 
     public double getCurrentValue() {
         // TODO: calculate current market value of this position
@@ -27,6 +37,7 @@ public class Position implements Rankable, CSVSerializeable {
 
     public double getUnrealizedGain() {
         // TODO: calculate profit/loss vs cost basis
+        // Hint: getCurrentValue() - getCostBasis()
         return 0;
     }
 
