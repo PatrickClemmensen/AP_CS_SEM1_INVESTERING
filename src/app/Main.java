@@ -1,7 +1,13 @@
 package app;
-//Pind is med flødeskum hos Isak Pais med en pejs
+
+import service.PortfolioService;
+import service.StockMarketService;
+import service.UserService;
+import ui.MainMenu;
+
 public class Main {
-    public static void main(String[] agrs) {
-        System.out.println("Hello World");
+    public static void main(String[] args) {
+        // TODO: instantiate services with the correct file paths
+        // TODO: pass them to MainMenu and call start()
     }
 }
