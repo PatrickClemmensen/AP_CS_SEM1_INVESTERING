@@ -1,11 +1,13 @@
 package model.portfolio;
 
+import java.time.LocalDate;
+
 public class User {
     // TODO: declare fields based on users.csv
-    // Hint: userId, fullName, email, birthDate, cashBalance, portfolio
+    // Hint: userId, fullName, email, birthDate, cashBalance, portfolio, createdAt, lastUpdated
 
     public User(int userId, String fullName, String email,
-                String birthDate, double initialCash) {
+                LocalDate birthDate, double initialCash, LocalDate createdAt, LocalDate lastUpdated) {
         // TODO: initialize fields
         // Hint: create a new Portfolio() here
     }
