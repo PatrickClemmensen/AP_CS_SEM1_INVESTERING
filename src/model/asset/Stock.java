@@ -1,9 +1,9 @@
 package model.asset;
 
-import interfaces.CSVSerializeable;
+import interfaces.CSVSerializable;
 import interfaces.Tradeable;
 
-public class Stock extends Asset implements Tradeable, CSVSerializeable {
+public class Stock extends Asset implements Tradeable, CSVSerializable {
     // TODO: declare fields specific to stocks (sector, dividendYield)
     // Hint: look at stockMarket.csv column headers
 
@@ -20,5 +20,20 @@ public class Stock extends Asset implements Tradeable, CSVSerializeable {
     public String toCSVLine() {
         // TODO: return semicolon-delimited string matching stockMarket.csv column order
         return null;
+    }
+
+    @Override
+    public String getTicker() {
+        return "";
+    }
+
+    @Override
+    public double getPrice() {
+        return 0;
+    }
+
+    @Override
+    public String getCurrency() {
+        return "";
     }
 }
