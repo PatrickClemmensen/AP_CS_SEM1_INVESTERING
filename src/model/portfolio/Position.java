@@ -1,10 +1,10 @@
 package model.portfolio;
 
-import interfaces.CSVSerializeable;
+import interfaces.CSVSerializable;
 import interfaces.Rankable;
 import model.asset.Asset;
 
-public class Position implements Rankable, CSVSerializeable {
+public class Position implements Rankable, CSVSerializable {
     // TODO: declare fields (asset, quantity, averageBuyPrice)
     // Note: averageBuyPrice should NOT be final — it updates on each additional purchase
 

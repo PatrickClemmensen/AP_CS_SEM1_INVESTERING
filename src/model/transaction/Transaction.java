@@ -1,11 +1,11 @@
 package model.transaction;
 
-import interfaces.CSVSerializeable;
+import interfaces.CSVSerializable;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class Transaction implements CSVSerializeable {
+public class Transaction implements CSVSerializable {
     private final int id;
     private final int userId;
     private final LocalDate date;
