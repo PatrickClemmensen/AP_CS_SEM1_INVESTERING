@@ -6,7 +6,6 @@ import service.StockMarketService;
 import util.AppConstants;
 import util.printing.ConsolePrinter;
 import java.util.Scanner;
-import static ui.MemberOption.OPTION_1;
 
 public class MemberMenu {
     // TODO: declare references to user, marketService, portfolioService - DONE
