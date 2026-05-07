@@ -6,8 +6,7 @@ public enum MemberOption {
     OPTION_2(2, "Buy stock"),
     OPTION_3(3, "Sell Stock"),
     OPTION_4(4, "View Market"),
-    OPTION_5(5, "Logout"),
-    EXIT(0, "Exit");
+    EXIT(0, "Logout");
 
     private final int value;
     private final String label;
