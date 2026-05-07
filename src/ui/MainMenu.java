@@ -23,21 +23,24 @@ public class MainMenu {
     }
 
     public void start() {
+
+        Scanner scanner = new Scanner(System.in);
         // TODO: display a welcome message and login prompt
-        // TODO: ask for a user ID and look up the user via UserService
+        ConsolePrinter.printMenuHeader("Welcome message");
+
         // TODO: if found, pass the user to MemberMenu and call its start() method
         // TODO: loop until the user chooses to exit
-        Scanner scanner = new Scanner(System.in);
-        ConsolePrinter.printMenuHeader("Welcome message");
         while(true){
+            // TODO: ask for a user ID and look up the user via UserService
             ConsolePrinter.printMenuOption("Write user id:");
 
             try {
                 User user = userService.findById(Integer.valueOf(scanner.nextLine()));
                 if(user != null){
+                    //logic to differentiate between member and club leader goes here:
                     new MemberMenu(user,marketService,portfolioService).start();
-
                 }else{
+                    //AC2 criteria goes here
                     System.out.println("user not found");
                 }
             } catch (Exception e) {

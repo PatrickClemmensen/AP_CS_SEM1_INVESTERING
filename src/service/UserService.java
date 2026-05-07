@@ -21,21 +21,22 @@ public class UserService {
 
     private void load(String path) {
         // TODO: use CSVReader to read users.csv
+        for(String[] row : CSVReader.read(path)){
         // TODO: parse each row into a User object
-        // TODO: put each User into the map using userId as key
-        // Hint: row order is user_id;full_name;email;birth_date;initial_cash_DKK;created_at;last_updated
-        for (String[] row : CSVReader.read(path)) {
-            int userId           = Integer.parseInt(row[0].trim());
-            String fullName      = row[1].trim();
-            String email         = row[2].trim();
-            LocalDate birthDate  = LocalDate.parse(row[3].trim(), FORMATTER);
-            double cash          = Double.parseDouble(row[4].trim().replace(",", "."));
+            int userId = Integer.parseInt(row[0].trim());
+            String fullName = row[1].trim();
+            String email = row[2].trim();
+            LocalDate birthDate = LocalDate.parse(row[3].trim(), FORMATTER);
+            double initialCash = Double.parseDouble(row[4].trim().replace(",","."));
             LocalDate createdAt  = LocalDate.parse(row[5].trim(), FORMATTER);
             LocalDate lastUpdated = LocalDate.parse(row[6].trim(), FORMATTER);
 
-            userMap.put(userId, new User(userId, fullName, email, birthDate,
-                    cash, createdAt, lastUpdated));
+            // TODO: put each User into the map using userId as key
+            User user = new User(userId, fullName, email, birthDate, initialCash, createdAt, lastUpdated);
+            userMap.put(userId,user);
         }
+        // Hint: row order is user_id;full_name;email;birth_date;initial_cash_DKK;created_at;last_updated
+
     }
 
     public User findById(int userId) {
