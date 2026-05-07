@@ -15,5 +15,6 @@ public class Colors {
     public static final String CONFIRMATION = "\u001B[32m";
     public static final String MENUHEADER = "\u001B[34m";
     public static final String MENUOPTION = "\u001B[36m";
+    private static final String SEPARATOR  = "\u001B[37m";
 
 }

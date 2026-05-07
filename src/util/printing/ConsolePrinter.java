@@ -25,4 +25,8 @@ public final class ConsolePrinter {
     public static void printMenuOption(String message) {
         System.out.print(Colors.MENUOPTION + message + Colors.RESET);
     }
+
+    public static void printSeparator() {
+        System.out.println(Colors.SEPARATOR + "─".repeat(40) + Colors.RESET);
+    }
 }
