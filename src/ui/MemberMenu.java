@@ -77,7 +77,7 @@ public class MemberMenu {
     }
 
     private void viewMarket() {
-        ConsolePrinter.printConfirmation("Placeholder for viewMarket");
+        ConsolePrinter.printConfirmation("Placeholder for viewMarket()");
         // TODO: print all available stocks from marketService.getAllStocks()
     }
 }
