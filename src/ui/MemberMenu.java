@@ -61,7 +61,7 @@ public class MemberMenu {
     /**
      * Prints the menu itself with the logged-in user's name and their current cash balance.
      */
-    public void show() {
+    private void show() {
         ConsolePrinter.printSeparator();
         ConsolePrinter.printMenuHeader("Welcome " + user.getFullName() + ", you current cash balance is " + user.getCashBalance() + " " + AppConstants.BASE_CURRENCY);
         ConsolePrinter.printSeparator();
