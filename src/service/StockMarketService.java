@@ -101,9 +101,9 @@ public class StockMarketService {
      * </p>
      */
     public void viewMarket(){
-        System.out.println(Colors.MENUHEADER + "\n===== STOCK MARKET =====" + Colors.RESET);
-        System.out.printf("%-8s %-30s %-15s %10s %6s%n", "TICKER", "NAME", "SECTOR", "PRICE", "CURR");
-        System.out.println("-".repeat(73));
+        System.out.println(Colors.MENUHEADER + "\n============================== STOCK MARKET ===============================\n" + Colors.RESET);
+        System.out.printf("%-10s %-30s %-14s %11s %6s%n", "TICKER", "NAME", "SECTOR", "PRICE", "CURR");
+        System.out.println("-".repeat(75));
 
         for(Stock stock : stockMap.values()){
             System.out.println(Colors.MENUOPTION + stock + Colors.RESET);
