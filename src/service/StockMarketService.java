@@ -3,6 +3,7 @@ package service;
 import model.asset.Stock;
 import util.constants.Colors;
 import util.csv.CSVReader;
+import util.printing.ConsolePrinter;
 
 import java.awt.*;
 import java.time.LocalDate;
@@ -101,9 +102,10 @@ public class StockMarketService {
      * </p>
      */
     public void viewMarket(){
-        System.out.println(Colors.MENUHEADER + "\n============================== STOCK MARKET ===============================\n" + Colors.RESET);
+        ConsolePrinter.printMenuHeader("\n============================== STOCK MARKET ===============================\n");
         System.out.printf("%-10s %-30s %-14s %11s %6s%n", "TICKER", "NAME", "SECTOR", "PRICE", "CURR");
-        System.out.println("-".repeat(75));
+        //sssSystem.out.println("-".repeat(75));
+        ConsolePrinter.printSeparator();
 
         for(Stock stock : stockMap.values()){
             System.out.println(Colors.MENUOPTION + stock + Colors.RESET);
