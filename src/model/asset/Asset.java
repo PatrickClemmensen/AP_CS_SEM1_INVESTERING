@@ -2,6 +2,13 @@ package model.asset;
 
 import java.time.LocalDate;
 
+/**
+ * Abstract class representing a tradable financial asset.
+ * <p>
+ *     Contains the fields and behavior shared across all asset types
+ *     (e.g. stocks, bonds) Subclasses must provide their own
+ * </p>
+ */
 public abstract class Asset {
     // TODO: declare fields based on the shared columns in stockMarket.csv and bondMarket.csv
     private String ticker;
@@ -13,6 +20,17 @@ public abstract class Asset {
     private LocalDate lastUpdated;
     // Hint: ticker, name, price, currency, rating, market, lastUpdated
 
+    /**
+     * Constructs a new {@code Asset} with the given market data.
+     *
+     * @param ticker        the unique ticker symbol (e.g. {@code "AAPL"})
+     * @param name          the full display name of the asset
+     * @param price         the current market price
+     * @param currency      the currency code the price is quoted in (e.g. {@code "DKK"})
+     * @param rating        the credit or analyst rating
+     * @param market        the exchange or market this asset trades on
+     * @param lastUpdated   the date the price data was last updated
+     */
     public Asset(String ticker, String name, double price, String currency,
                  String rating, String market, LocalDate lastUpdated) {
         // TODO: initialize fields
@@ -54,9 +72,14 @@ public abstract class Asset {
         return lastUpdated;
     }
 
+    /**
+     * Returns a short readable summary of this asset.
+     *
+     * @return a formatted summary string
+     */
     @Override
     public String toString() {
         // TODO: return a readable summary, e.g. "[NOVO-B] Novozymes — 710.00 DKK (Rating: AA)"
-        return null;
+        return String.format("[%s] %s - %.2f %s", ticker, name, price, currency);
     }
 }

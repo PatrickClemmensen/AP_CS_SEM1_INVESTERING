@@ -6,19 +6,34 @@ import interfaces.Tradeable;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Represents a stock listed on a financial market.
+ * <p>
+ *     Extends {@link Asset} with stock-specific data (sector and dividend yield),
+ *     and implements {@link Tradeable} for market operations and
+ *     {@link CSVSerializable} for CSV persistence.
+ * </p>
+ */
 public class Stock extends Asset implements Tradeable, CSVSerializable {
     // TODO: declare fields specific to stocks (sector, dividendYield)
-    private String ticker;
-    private String name;
     private String sector;
-    private double price;
-    private String currency;
-    private String rating;
     private double dividendYield;
-    private String market;
-    private LocalDate lastUpdated;
+
     // Hint: look at stockMarket.csv column headers
 
+    /**
+     * Constructs a new {@code Stock} with the given market data.
+     *
+     * @param ticker            the unique ticker symbol
+     * @param name              the full display name of the stock
+     * @param sector            the industry sector (e.g. {@code "Health care"})
+     * @param price             the current market price
+     * @param currency          the currency code the price is quoted in (e.g. {@code "DKK"}
+     * @param rating            the analyst rating
+     * @param dividendYield     the annual dividend yield as percentage
+     * @param market            the exchange this stock trades on
+     * @param lastUpdated       the date the price data was last updated
+     */
     public Stock(String ticker, String name, String sector, double price,
                  String currency, String rating, double dividendYield,
                  String market, LocalDate lastUpdated) {
@@ -29,19 +44,28 @@ public class Stock extends Asset implements Tradeable, CSVSerializable {
     }
 
 
+    /**
+     * Returns a semicolon-delimited CSV representation of this stock,
+     * matching the column order of {@code stockmatket.csv}
+     * <p>
+     *     Column order: {@code ticker;name;sector;price;currency;rating;dividendYield;market;lastUpdated}
+     * </p>
+     *
+     * @return a CSV-formatted String representing this stock
+     */
     @Override
     public String toCSVLine() {
         // TODO: return semicolon-delimited string matching stockMarket.csv column order
         return String.join(";",
-                ticker,
-                name,
+                getTicker(),
+                getName(),
                 sector,
-                String.valueOf(price),
-                currency,
-                rating,
+                String.valueOf(getPrice()),
+                getCurrency(),
+                getRating(),
                 String.valueOf(dividendYield),
-                market,
-                lastUpdated.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+                getMarket(),
+                getLastUpdated().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
     }
 
     // TODO: add getters for sector and dividendYield
@@ -50,34 +74,22 @@ public class Stock extends Asset implements Tradeable, CSVSerializable {
         return sector;
     }
 
-    public double getDividedYield(){
+    public double getDividendYield(){
         return dividendYield;
     }
 
-    @Override
-    public String getTicker() {
-        return ticker;
-    }
 
-    @Override
-    public String getName(){
-        return name;
-    }
-
-    @Override
-    public double getPrice() {
-        return price;
-    }
-
-    @Override
-    public String getCurrency() {
-        return currency;
-    }
-
-
+    /**
+     * Returns a formatted one-line summary of this stock for console display
+     * <p>
+     *     Columns are padded for alignment in the market table view.
+     * </p>
+     *
+     * @return a formatted string showing ticker, name, sector, price and currency
+     */
     @Override
     public String toString(){
-        return String.format("%-8s %-30s %-15s %10.2f %6s", getTicker(), getName(), getSector(), getPrice(), getCurrency());
+        return String.format("%-10s %-30s %-15s %10.2f %6s", getTicker(), getName(), getSector(), getPrice(), getCurrency());
 
     }
 }
