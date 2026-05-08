@@ -6,6 +6,8 @@ import service.StockMarketService;
 import service.UserService;
 import util.printing.ConsolePrinter;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 public class MainMenu {
@@ -74,15 +76,38 @@ Scanner scanner = new Scanner(System.in);
      */
     public void userNotFound() {
 
-        System.out.println("User not found");
+        ConsolePrinter.printError("User not found");
         while (true) {
-            System.out.println("Register? | yes or no");
+            ConsolePrinter.printMenuOption("Register? | yes or no");
 
             String choice = scanner.nextLine().trim().toLowerCase();
 
             if (choice.equals("yes")) {
                 //register user here
-                break;
+                    Scanner scanner = new Scanner(System.in);
+                    ConsolePrinter.printMenuOption("Register new user. Please enter the required information.");
+
+                    ConsolePrinter.printMenuOption("Full name: ");
+                    String fullName = scanner.nextLine();
+
+                    ConsolePrinter.printMenuOption("Email: ");
+                    String email = scanner.nextLine();
+
+                    ConsolePrinter.printMenuOption("Enter birth date (dd-MM-yyyy): ");
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                    LocalDate birthDate = LocalDate.parse(scanner.nextLine(), formatter);
+
+                    int newUserId = userService.getAllUsers().stream()
+                            .mapToInt(User::getUserId)
+                            .max()
+                            .orElse(0) + 1;
+
+                LocalDate createdAt = LocalDate.now();
+                User newUser = new User(newUserId, fullName, email, birthDate, 100000.0, createdAt, createdAt);
+
+                    userService.addUser(newUser);
+                    new MemberMenu(newUser, marketService, portfolioService).start(); //When a new user is created they will be sent to the member menu.
+
             } else if (choice.equals("no")) {
                 System.out.println("User not found. Please enter another id to login.");
                 break;

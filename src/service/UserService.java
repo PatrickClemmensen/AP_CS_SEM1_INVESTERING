@@ -48,4 +48,9 @@ public class UserService {
         // TODO: return all users in the map
         return userMap.values();
     }
+
+    public void addUser(User user){
+        userMap.put(user.getUserId(),user);
+    }
+
 }
