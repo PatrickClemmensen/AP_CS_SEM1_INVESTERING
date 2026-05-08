@@ -8,15 +8,15 @@ import util.printing.ConsolePrinter;
 
 import java.util.Scanner;
 
-public class MainMenu {
+    public class MainMenu {
     // TODO: declare references to services
     private UserService userService;
     private StockMarketService marketService;
     private PortfolioService portfolioService;
-/**
- *  Scanner used to read input from the console for all methods.
- */
-Scanner scanner = new Scanner(System.in);
+    /**
+    *  Scanner used to read input from the console for all methods.
+    */
+    Scanner scanner = new Scanner(System.in);
 
     /**
      * @param userService is used to find users.
@@ -72,7 +72,7 @@ Scanner scanner = new Scanner(System.in);
      * If "no", the method exits the method and the user is returned to the ID prompt in the main menu.
      * Invalid input causes the method to start over and ask again.
      */
-    public void userNotFound() {
+    private void userNotFound() {
 
         System.out.println("User not found");
         while (true) {
