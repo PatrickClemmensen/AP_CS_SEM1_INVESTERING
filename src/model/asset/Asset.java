@@ -15,4 +15,25 @@ public abstract class Asset {
 
     public Asset(String ticker, String name, double price, String currency,
                  String rating, String market, LocalDate lastUpdated) {
-        // TODO: initializ
+        // TODO: initialize fields
+        this.ticker = ticker;
+        this.name = name;
+        this.price = price;
+        this.currency = currency;
+        this.rating = rating;
+        this.market = market;
+        this.lastUpdated = lastUpdated;
+    }
+
+    // TODO: add getters for each field
+    public String getName(){
+        return name;
+    }
+
+
+    @Override
+    public String toString() {
+        // TODO: return a readable summary, e.g. "[NOVO-B] Novozymes — 710.00 DKK (Rating: AA)"
+        return null;
+    }
+}

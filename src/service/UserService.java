@@ -50,4 +50,36 @@ public class UserService {
             String fullName = row[1].trim();
             String email = row[2].trim();
             LocalDate birthDate = LocalDate.parse(row[3].trim(), FORMATTER);
-            double initialCash 
+            double initialCash = Double.parseDouble(row[4].trim().replace(",","."));
+            LocalDate createdAt  = LocalDate.parse(row[5].trim(), FORMATTER);
+            LocalDate lastUpdated = LocalDate.parse(row[6].trim(), FORMATTER);
+
+            // TODO: put each User into the map using userId as key
+            User user = new User(userId, fullName, email, birthDate, initialCash, createdAt, lastUpdated);
+            userMap.put(userId,user);
+        }
+        // Hint: row order is user_id;full_name;email;birth_date;initial_cash_DKK;created_at;last_updated
+
+    }
+
+    /**
+     * Finds and returns the {@link User} associated with the given User ID
+     *
+     * @param userId the unique identifier of the user to look up
+     * @return the matching {@link User}, or {@code null} if no user with that ID exists
+     */
+    public User findById(int userId) {
+        // TODO: return the User for the given userId, or null if not found
+        return userMap.get(userId);
+    }
+
+    /**
+     * Returns all users currently loaded in the system
+     *
+     * @return a {@link Collection} of all {@link User} objects: never {@code null}
+     */
+    public Collection<User> getAllUsers() {
+        // TODO: return all users in the map
+        return userMap.values();
+    }
+}

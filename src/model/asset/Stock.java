@@ -37,4 +37,22 @@ public class Stock extends Asset implements Tradeable, CSVSerializable {
 
 
     @Override
-    public double getPrice(
+    public double getPrice() {
+        return 0;
+    }
+
+    @Override
+    public String getCurrency() {
+        return "";
+    }
+
+    public String getSector(){
+        return "";
+    }
+
+    @Override
+    public String toString(){
+        return String.format("%-8s %-30s %-15s %10.2f %6s", getTicker(), getName(), getSector(), getPrice(), getCurrency());
+
+    }
+}
