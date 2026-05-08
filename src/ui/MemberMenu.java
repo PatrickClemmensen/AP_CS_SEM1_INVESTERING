@@ -66,8 +66,9 @@ public class MemberMenu {
      * Prints the menu itself with the logged-in user's name and their current cash balance.
      */
     private void show() {
+        System.out.println();
         ConsolePrinter.printSeparator();
-        ConsolePrinter.printMenuHeader("Welcome " + user.getFullName() + ", you current cash balance is " + user.getCashBalance() + " " + AppConstants.BASE_CURRENCY);
+        ConsolePrinter.printMenuHeader("Welcome " + user.getFullName() + ", you current cash balance is " + (user.getCashBalance() - user.getPortfolio().getTotalValue()) + " " + AppConstants.BASE_CURRENCY);
         ConsolePrinter.printSeparator();
         for (MemberOption option : MemberOption.values()) {
             ConsolePrinter.printMenuOption(option.getValue() + ". " + option.getLabel());
