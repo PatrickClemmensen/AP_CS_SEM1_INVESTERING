@@ -7,19 +7,40 @@ import util.AppConstants;
 import util.printing.ConsolePrinter;
 import java.util.Scanner;
 
+/**
+ * Menu flow for Club Members.
+ *
+ * A Club Member can do the following:
+ *       <ul>
+ *           <li>View Portfolio</li>
+ *           <li>Buy Stock</li>
+ *           <li>Sell Stock</li>
+ *           <li>View Market</li>
+ *       </ul>
+ *
+ */
 public class MemberMenu {
-    // TODO: declare references to user, marketService, portfolioService - DONE
     private User user;
     private StockMarketService marketService;
     private PortfolioService portfolioService;
 
+    /**
+     * Constructor for MemberMenu object.
+     * Creates a MemberMenu for the given user, backed by the provided services.
+     * @param user the logged in user
+     * @param marketService - live data from the market
+     * @param portfolioService - live data from the user's portfolio
+     */
     public MemberMenu(User user, StockMarketService marketService, PortfolioService portfolioService) {
-        // TODO: initialize fields - DONE
         this.user = user;
         this.marketService = marketService;
         this.portfolioService = portfolioService;
     }
 
+    /**
+     * Initiation of the menu process - displays the menu and loops until the user chooses to exit..
+     * Also contains the logic for exiting the menu.
+     */
     public void start() {
         Scanner scanner = new Scanner(System.in);
         show();
@@ -37,6 +58,9 @@ public class MemberMenu {
         }
     }
 
+    /**
+     * Prints the menu itself with the logged-in user's name and their current cash balance.
+     */
     public void show() {
         ConsolePrinter.printSeparator();
         ConsolePrinter.printMenuHeader("Welcome " + user.getFullName() + ", you current cash balance is " + user.getCashBalance() + " " + AppConstants.BASE_CURRENCY);
@@ -47,7 +71,10 @@ public class MemberMenu {
         ConsolePrinter.printSeparator();
     }
 
-    // TODO: read user input and route to the appropriate method - DONE
+    /**
+     * Directs the user to a new submenu based on the option they choose.
+     * @param option choice made by the logged-in user
+     */
     private void handleChoice(MemberOption option) {
         switch (option) {
             case OPTION_1 -> viewPortfolio();
