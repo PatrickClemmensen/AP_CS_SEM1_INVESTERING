@@ -105,9 +105,8 @@ import java.util.Scanner;
                 LocalDate createdAt = LocalDate.now();
                 User newUser = new User(newUserId, fullName, email, birthDate, 100000.0, createdAt, createdAt);
 
-                    userService.addUser(newUser);
-                    new MemberMenu(newUser, marketService, portfolioService).start(); //When a new user is created they will be sent to the member menu.
-
+                userService.addUser(newUser);
+                break;
             } else if (choice.equals("no")) {
                 System.out.println("User not found. Please enter another id to login.");
                 break;
