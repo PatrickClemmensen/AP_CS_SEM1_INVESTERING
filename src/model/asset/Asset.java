@@ -26,10 +26,33 @@ public abstract class Asset {
     }
 
     // TODO: add getters for each field
+    public String getTicker(){
+        return ticker;
+    }
+
     public String getName(){
         return name;
     }
 
+    public double getPrice(){
+        return price;
+    }
+
+    public String getCurrency(){
+        return currency;
+    }
+
+    public String getRating(){
+        return rating;
+    }
+
+    public String getMarket(){
+        return market;
+    }
+
+    public LocalDate getLastUpdated(){
+        return lastUpdated;
+    }
 
     @Override
     public String toString() {
