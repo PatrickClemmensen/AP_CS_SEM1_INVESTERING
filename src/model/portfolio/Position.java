@@ -7,56 +7,64 @@ import model.asset.Asset;
 public class Position implements Rankable, CSVSerializable {
     // TODO: declare fields (asset, quantity, averageBuyPrice)
     // Note: averageBuyPrice should NOT be final — it updates on each additional purchase
+    private final Asset asset;
+    private int quantity;
+    private double averageBuyPrice;
+
 
     public Position(Asset asset, int quantity, double averageBuyPrice) {
         // TODO: initialize fields
+        this.asset = asset;
+        this.quantity = quantity;
+        this.averageBuyPrice = averageBuyPrice;
     }
 
     // TODO: add getters for asset, quantity, averageBuyPrice
 
-    public void addQuantity(int quantity) {
-        // TODO: add the given quantity to the current quantity
+    public Asset getAsset() { return asset; }
+    public int getQuantity() { return quantity; }
+    public double getAverageBuyPrice() { return averageBuyPrice; }
+
+
+    public void increaseQuantity(int newQuantity, double newPrice) {
+        double totalCost = (this.averageBuyPrice * this.quantity) + (newPrice * newQuantity);
+        this.quantity += newQuantity;
+        this.averageBuyPrice = totalCost / this.quantity;
     }
 
-    public void setAverageBuyPrice(double averageBuyPrice) {
-        // TODO: update the averageBuyPrice
-        // Note: this is called by PortfolioService after recalculating the weighted average
+    public void decreaseQuantity(int qty) {
+        this.quantity -= qty;
     }
 
     public double getCurrentValue() {
-        // TODO: calculate current market value of this position
-        // Hint: asset.getPrice() * quantity
-        return 0;
+        return asset.getPrice() * quantity;
     }
 
     public double getCostBasis() {
-        // TODO: calculate what was originally paid
-        // Hint: averageBuyPrice * quantity
-        return 0;
+        return averageBuyPrice * quantity;
     }
 
     public double getUnrealizedGain() {
-        // TODO: calculate profit/loss vs cost basis
-        // Hint: getCurrentValue() - getCostBasis()
-        return 0;
+        return getCurrentValue() - getCostBasis();
     }
 
     @Override
     public double getRankValue() {
-        // TODO: return percent return for use in ByPercentReturn comparator
-        // Hint: ((currentPrice - averageBuyPrice) / averageBuyPrice) * 100
-        return 0;
+        return ((asset.getPrice() - averageBuyPrice) / averageBuyPrice) * 100;
     }
 
     @Override
     public String toCSVLine() {
-        // TODO: return semicolon-delimited string
-        return null;
+        return String.join(";",
+                asset.getTicker(),
+                String.valueOf(quantity),
+                String.valueOf(averageBuyPrice));
     }
 
     @Override
     public String toString() {
-        // TODO: return a readable summary of this position
-        return null;
+        return String.format("%-10s %-25s %8d %12.2f %12.2f %12.2f",
+                asset.getTicker(), asset.getName(), quantity,
+                averageBuyPrice, asset.getPrice(), getUnrealizedGain());
     }
 }

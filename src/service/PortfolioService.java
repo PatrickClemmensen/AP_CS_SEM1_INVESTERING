@@ -1,15 +1,25 @@
 package service;
 
+import model.asset.Stock;
+import model.portfolio.Portfolio;
+import model.portfolio.Position;
 import model.portfolio.User;
 import model.transaction.Transaction;
 import model.transaction.OrderType;
+import util.AppConstants;
+import util.constants.Colors;
+import util.csv.CSVReader;
+
+import java.util.List;
 
 public class PortfolioService {
     // TODO: declare a reference to StockMarketService
+    private StockMarketService marketService;
     // TODO: declare an int counter for generating transaction IDs
 
     public PortfolioService(StockMarketService marketService) {
         // TODO: initialize fields
+        this.marketService = marketService;
     }
 
     public Transaction buy(User user, String ticker, int quantity) {
@@ -47,4 +57,40 @@ public class PortfolioService {
         // TODO: create and return a Transaction with OrderType.SELL
         return null;
     }
+
+    public void loadPortfolio(User user){
+        List<String[]> rows = CSVReader.read(AppConstants.TRANSACTIONS_FILE);
+
+        for(String[] row : rows){
+            int userId = Integer.parseInt(row[1]);
+            if(userId != user.getUserId()) continue;
+
+            String ticker = row[3];
+            double price = Double.parseDouble(row[4].replace(",", "."));
+            OrderType orderType = OrderType.fromString(row[6]);
+            int quantity = Integer.parseInt(row[7]);
+
+            Stock stock = marketService.findByTicker(ticker);
+            if(stock == null) continue;
+
+            Portfolio portfolio = user.getPortfolio();
+            Position existing = portfolio.findByTicker(ticker);
+
+            if(orderType == OrderType.BUY){
+                if(existing == null){
+                    portfolio.addPosition(new Position(stock, quantity,price));
+                } else {
+                    existing.increaseQuantity(quantity, price);
+                }
+            } else if (orderType == OrderType.SELL){
+                if(existing != null){
+                    existing.decreaseQuantity(quantity);
+                    if(existing.getQuantity() == 0){
+                        portfolio.removePosition(existing);
+                    }
+                }
+            }
+        }
+    }
+
 }

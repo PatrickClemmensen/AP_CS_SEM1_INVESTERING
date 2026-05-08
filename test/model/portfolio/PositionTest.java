@@ -4,6 +4,8 @@ import model.asset.Stock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PositionTest {
@@ -14,7 +16,7 @@ public class PositionTest {
     @BeforeEach
     void setUp(){
         stock = new Stock("NOVO-B", "Novozymes", "Health Care",
-                710.0, "DKK", "AA", 1.6, "Nasdaq Copenhagen", "22-04-2025");
+                710.0, "DKK", "AA", 1.6, "Nasdaq Copenhagen", LocalDate.parse("22-04-2025"));
         position = new Position(stock, 20, 700.0);
     }
 

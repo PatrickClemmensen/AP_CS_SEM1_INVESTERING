@@ -1,9 +1,12 @@
 package ui;
 
+import model.portfolio.Portfolio;
+import model.portfolio.Position;
 import model.portfolio.User;
 import service.PortfolioService;
 import service.StockMarketService;
 import util.AppConstants;
+import util.constants.Colors;
 import util.printing.ConsolePrinter;
 import java.util.Scanner;
 
@@ -35,6 +38,7 @@ public class MemberMenu {
         this.user = user;
         this.marketService = marketService;
         this.portfolioService = portfolioService;
+        portfolioService.loadPortfolio(user);
     }
 
     /**
@@ -85,9 +89,23 @@ public class MemberMenu {
     }
 
     private void viewPortfolio() {
-        ConsolePrinter.printConfirmation("Placeholder for viewPortfolio()");
-        // TODO: print all positions in the user's portfolio
-        // TODO: show total value and total unrealized gain
+        System.out.println(Colors.MENUHEADER + "\n============================== MY PORTFOLIO ===============================\n" + Colors.RESET);
+        System.out.printf("%-10s %-25s %8s %12s %12s %12s%n", "TICKER", "NAME", "QTY", "AVG BUY", "VALUE", "POT. GAIN");
+        System.out.println("-".repeat(75));
+
+        if (user.getPortfolio().getPositions().isEmpty()) {
+            System.out.println("Your portfolio is empty.");
+        } else {
+            for (Position position : user.getPortfolio().getPositions()) {
+                System.out.println(Colors.MENUOPTION + position + Colors.RESET);
+            }
+            System.out.println("-".repeat(75));
+            System.out.println(Colors.MENUOPTION + String.format("%-12s %12.2f DKK     %-10s %12.2f DKK",
+                    "Total Value:", user.getPortfolio().getTotalValue(),
+                    "Total Gain:", user.getPortfolio().getTotalGain()) + Colors.RESET);
+        }
+
+        show();
     }
 
     private void buyStock() {
@@ -103,7 +121,7 @@ public class MemberMenu {
     }
 
     private void viewMarket() {
-        ConsolePrinter.printConfirmation("Placeholder for viewMarket()");
-        // TODO: print all available stocks from marketService.getAllStocks()
+        marketService.viewMarket();
+        show();
     }
 }

@@ -5,29 +5,39 @@ import java.util.List;
 
 public class Portfolio {
     // TODO: declare a list to hold positions
+    List<Position> portfolio = new ArrayList<>();
 
     public void addPosition(Position position) {
-        // TODO: add a position to the list
+        portfolio.add(position);
+    }
+
+    public void removePosition(Position position) {
+        portfolio.remove(position);
     }
 
     public List<Position> getPositions() {
-        // TODO: return all positions
-        return null;
+        return portfolio;
     }
 
     public Position findByTicker(String ticker) {
         // TODO: find and return a position by ticker symbol, or null if not found
         // Hint: use a stream with a filter
-        return null;
+
+        return portfolio.stream()
+                .filter(p -> p.getAsset().getTicker().equals(ticker))
+                .findFirst()
+                .orElse(null);
     }
 
     public double getTotalValue() {
-        // TODO: sum the current value of all positions
-        return 0;
+        return portfolio.stream()
+                .mapToDouble(Position::getCurrentValue)
+                .sum();
     }
 
     public double getTotalGain() {
-        // TODO: sum the unrealized gain across all positions
-        return 0;
+        return portfolio.stream()
+                .mapToDouble(Position::getUnrealizedGain)
+                .sum();
     }
 }
