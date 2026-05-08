@@ -104,7 +104,7 @@ public class StockMarketService {
     public void viewMarket(){
         ConsolePrinter.printMenuHeader("\n============================== STOCK MARKET ===============================\n");
         System.out.printf("%-10s %-30s %-14s %11s %6s%n", "TICKER", "NAME", "SECTOR", "PRICE", "CURR");
-        //System.out.println("-".repeat(75));
+        //sssSystem.out.println("-".repeat(75));
         ConsolePrinter.printSeparator();
 
         for(Stock stock : stockMap.values()){
