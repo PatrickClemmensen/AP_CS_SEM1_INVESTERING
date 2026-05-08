@@ -27,6 +27,7 @@ public final class ConsolePrinter {
     }
 
     public static void printSeparator() {
-        System.out.println(Colors.SEPARATOR + "─".repeat(75) + Colors.RESET);
+        System.out.println(Colors.SEPARATOR + "─".repeat(100) + Colors.RESET);
     }
+
 }
