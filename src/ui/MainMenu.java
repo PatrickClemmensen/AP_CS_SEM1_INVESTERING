@@ -82,37 +82,46 @@ import java.util.Scanner;
 
             String choice = scanner.nextLine().trim().toLowerCase();
 
+            /**
+             * If the user chooses "yes" register, they will be sent here.
+             * The user's full name, email adress and birth date is collected and a new user ID is generated.
+             */
             if (choice.equals("yes")) {
                 //register user here
                     Scanner scanner = new Scanner(System.in);
                     ConsolePrinter.printMenuOption("Register new user. Please enter the required information.");
 
-                    ConsolePrinter.printMenuOption("Full name: ");
+                    ConsolePrinter.printMenuOption("Enter your full name: ");
                     String fullName = scanner.nextLine();
 
-                    ConsolePrinter.printMenuOption("Email: ");
+                    ConsolePrinter.printMenuOption("Enter your email: ");
                     String email = scanner.nextLine();
 
-                    ConsolePrinter.printMenuOption("Enter birth date (dd-MM-yyyy): ");
+                    ConsolePrinter.printMenuOption("Enter your birth date (dd-MM-yyyy): ");
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
                     LocalDate birthDate = LocalDate.parse(scanner.nextLine(), formatter);
 
-                    int newUserId = userService.getAllUsers().stream()
+                /**
+                 * // Generates a new user ID by finding the highest existing ID and adding 1.
+                 */
+                int newUserId = userService.getAllUsers().stream()
                             .mapToInt(User::getUserId)
                             .max()
                             .orElse(0) + 1;
-
+                /**
+                 * The new user will be created with a default starting balance(100.000 DKK).
+                 */
                 LocalDate createdAt = LocalDate.now();
                 User newUser = new User(newUserId, fullName, email, birthDate, 100000.0, createdAt, createdAt);
 
                 userService.addUser(newUser);
+                ConsolePrinter.printMenuOption("User created successfully. \n Your user ID is: " + newUserId);
                 break;
             } else if (choice.equals("no")) {
                 System.out.println("User not found. Please enter another id to login.");
                 break;
             } else {
                 System.out.println("Invalid choice. Please try again with yes or no.");
-
             }
         }
     }
