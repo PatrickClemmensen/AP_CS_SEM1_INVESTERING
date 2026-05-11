@@ -1,8 +1,13 @@
 package model.portfolio;
 
-import java.time.LocalDate;
+import interfaces.CSVSerializable;
+import util.printing.ConsolePrinter;
 
-public class User {
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Scanner;
+
+public class User implements CSVSerializable {
     // TODO: declare fields based on users.csv
     // Hint: userId, fullName, email, birthDate, cashBalance, portfolio, createdAt, lastUpdated
     private final int userId;
@@ -50,9 +55,23 @@ public class User {
         cashBalance += amount;
     }
 
+
     @Override
     public String toString() {
         // TODO: return a readable summary, e.g. "[1] Maria Jensen | Cash: 100000.00 DKK"
         return String.format("[%d] %s | Cash: %.2f DKK", userId, fullName, cashBalance);
+    }
+
+    @Override
+    public String toCSVLine() {
+       // userId, fullName, email, birthDate, cashBalance, portfolio, createdAt, lastUpdated
+        return String.join(";",
+                String.valueOf(userId),
+                String.valueOf(fullName),
+                String.valueOf(email),
+                birthDate.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")),
+                String.valueOf(cashBalance),
+                createdAt.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")),
+                lastUpdated.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
     }
 }
