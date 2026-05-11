@@ -101,7 +101,6 @@ public class MemberMenu {
                 ConsolePrinter.printMenuOption(position.toString());
             }
             ConsolePrinter.printSeparator();
-            System.out.println("-".repeat(75));
             double totalGain = user.getPortfolio().getTotalGain();
             String totalGainColored = totalGain >= 0
                     ? Colors.ANSI_GREEN + String.format("%+12.2f DKK", totalGain) + Colors.RESET
