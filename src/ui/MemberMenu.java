@@ -8,6 +8,8 @@ import service.StockMarketService;
 import util.AppConstants;
 import util.constants.Colors;
 import util.printing.ConsolePrinter;
+
+import java.sql.SQLOutput;
 import java.util.Scanner;
 
 /**
@@ -90,20 +92,20 @@ public class MemberMenu {
     }
 
     private void viewPortfolio() {
-        System.out.println(Colors.MENUHEADER + "\n============================== MY PORTFOLIO ===============================\n" + Colors.RESET);
-        System.out.printf("%-10s %-25s %8s %12s %12s %12s%n", "TICKER", "NAME", "QTY", "AVG BUY", "VALUE", "POT. GAIN");
-        System.out.println("-".repeat(75));
+        ConsolePrinter.printMenuHeader("\n=========================================== MY PORTFOLIO ===========================================\n");
+        System.out.printf("%-10s %-29s %8s %16s %16s %16s%n", "TICKER", "NAME", "QTY", "AVG BUY", "VALUE", "POT. GAIN");
+        ConsolePrinter.printSeparator();
 
         if (user.getPortfolio().getPositions().isEmpty()) {
-            System.out.println("Your portfolio is empty.");
+            ConsolePrinter.printError("Your portfolio is empty.");
         } else {
             for (Position position : user.getPortfolio().getPositions()) {
-                System.out.println(Colors.MENUOPTION + position + Colors.RESET);
+                ConsolePrinter.printMenuOption(position.toString());
             }
-            System.out.println("-".repeat(75));
-            System.out.println(Colors.MENUOPTION + String.format("%-12s %12.2f DKK     %-10s %12.2f DKK",
+            ConsolePrinter.printSeparator();
+            System.out.printf("%-14s %16.2f DKK   %-12s %16.2f DKK%n",
                     "Total Value:", user.getPortfolio().getTotalValue(),
-                    "Total Gain:", user.getPortfolio().getTotalGain()) + Colors.RESET);
+                    "Total Gain:", user.getPortfolio().getTotalGain());
         }
 
         show();

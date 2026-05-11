@@ -63,7 +63,7 @@ public class Position implements Rankable, CSVSerializable {
 
     @Override
     public String toString() {
-        return String.format("%-10s %-25s %8d %12.2f %12.2f %12.2f",
+        return String.format("%-10s %-29s %8d %16.2f %16.2f %16.2f",
                 asset.getTicker(), asset.getName(), quantity,
                 averageBuyPrice, asset.getPrice(), getUnrealizedGain());
     }
