@@ -8,8 +8,6 @@ import service.StockMarketService;
 import util.AppConstants;
 import util.constants.Colors;
 import util.printing.ConsolePrinter;
-
-import java.sql.SQLOutput;
 import java.util.Scanner;
 
 /**
@@ -103,9 +101,15 @@ public class MemberMenu {
                 ConsolePrinter.printMenuOption(position.toString());
             }
             ConsolePrinter.printSeparator();
-            System.out.printf("%-14s %16.2f DKK   %-12s %16.2f DKK%n",
+            System.out.println("-".repeat(75));
+            double totalGain = user.getPortfolio().getTotalGain();
+            String totalGainColored = totalGain >= 0
+                    ? Colors.ANSI_GREEN + String.format("%+12.2f DKK", totalGain) + Colors.RESET
+                    : Colors.ANSI_RED   + String.format("%12.2f DKK",  totalGain) + Colors.RESET;
+
+            System.out.println(Colors.MENUOPTION + String.format("%-12s %12.2f DKK     %-10s %s",
                     "Total Value:", user.getPortfolio().getTotalValue(),
-                    "Total Gain:", user.getPortfolio().getTotalGain());
+                    "Total Gain:", totalGainColored) + Colors.RESET);
         }
 
         show();

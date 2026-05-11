@@ -3,6 +3,7 @@ package model.portfolio;
 import interfaces.CSVSerializable;
 import interfaces.Rankable;
 import model.asset.Asset;
+import util.constants.Colors;
 
 public class Position implements Rankable, CSVSerializable {
     // TODO: declare fields (asset, quantity, averageBuyPrice)
@@ -63,8 +64,13 @@ public class Position implements Rankable, CSVSerializable {
 
     @Override
     public String toString() {
-        return String.format("%-10s %-29s %8d %16.2f %16.2f %16.2f",
+        double gain = getUnrealizedGain();
+        String gainColored = gain >= 0
+                ? Colors.ANSI_GREEN + String.format("%+12.2f", gain) + Colors.RESET
+                : Colors.ANSI_RED   + String.format("%12.2f",  gain) + Colors.RESET;
+
+        return String.format("%-10s %-29s %8d %16.2f %16.2f %s",
                 asset.getTicker(), asset.getName(), quantity,
-                averageBuyPrice, asset.getPrice(), getUnrealizedGain());
+                averageBuyPrice, asset.getPrice(), gainColored);
     }
 }
