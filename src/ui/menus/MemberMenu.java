@@ -116,62 +116,72 @@ public class MemberMenu {
     }
     // TODO: prompt for ticker and quantity
     private void buyStock() {
-        while(true){
-            ConsolePrinter.printConfirmation("Buy stock");
+        while (true) {
             marketService.viewMarket();
-            Stock stock = null; //Creates a stock-vale before the loop starts
 
-            while (stock == null) { //As long as stock is null, the user will be asked again
-                ConsolePrinter.printMenuOption("Please enter ticker:    |   Or press 0 to cancel");
-                String ticker = scanner.nextLine().trim().toUpperCase();
+            // --- ticker input ---
+            ConsolePrinter.printMenuOption("Please enter ticker:    |   Or press 0 to cancel");
+            String ticker = scanner.nextLine().trim().toUpperCase();
 
-                if (ticker.equals("0")) {
-                    ConsolePrinter.printConfirmation("Purchase cancelled");
-                    return;
-                }
-                    stock = marketService.findByTicker(ticker);
-
-                    if (stock == null) {
-                        ConsolePrinter.printError("No stock found with ticker: " + ticker);
-                        ConsolePrinter.printMenuOption("Please try again.");
-                    }
-                }
-
-                ConsolePrinter.printConfirmation("Selected stock: " + stock.getTicker());
-
-                    ConsolePrinter.printMenuOption("Enter quantity for " + stock.getTicker() + ":");
-
-                    int quantity = Integer.parseInt(scanner.nextLine().trim()); //Changes String input to int
-
-                    double pricePerStock = stock.getPrice();//What one stock costs
-                    double totalCost = pricePerStock * quantity;//All stocks together
-                    double balanceAfterPurchase = (user.getCashBalance() - user.getPortfolio().getTotalValue()) - totalCost;//Users potential cash balance after the purchase. The purchase isn't done here.
-
-                    //Trade summary:
-                    ConsolePrinter.printMenuHeader("TRADE SUMMARY");
-                    ConsolePrinter.printSeparator();
-                    System.out.println("Ticker: " + stock.getTicker());
-                    System.out.println("Quantity: " + quantity);
-                    System.out.printf("Price per stock: %.2f DKK%n", pricePerStock);
-                    System.out.printf("Total cost: %.2f DKK%n", totalCost);
-                    System.out.printf("Your cash balance after the purchase: %.2f DKK%n", balanceAfterPurchase);
-                    ConsolePrinter.printSeparator();
-                    ConsolePrinter.printMenuOption("Confirm purchase? Type y or n:");
-                    String confirmation = scanner.nextLine().trim().toLowerCase(); //reads user input
-
-        if (confirmation.equals("y")) {
-            //portfolioService handles logic
-            portfolioService.buy(user, stock.getTicker(), quantity); //purchase is done. withdraws money, updates position, writes transaction to transactions.csv
-            ConsolePrinter.printConfirmation("Purchase completed!");
-
-            ConsolePrinter.printMenuOption("Buy another stock? (y or n)");
-            String another = scanner.nextLine().trim().toLowerCase();
-
-            if (!another.equals("y")) {
+            if (ticker.equals("0")) {
+                ConsolePrinter.printConfirmation("Purchase cancelled");
                 start();
+                return;
             }
-            } else {
+
+            Stock stock = marketService.findByTicker(ticker);
+            if (stock == null) {
+                ConsolePrinter.printError("No stock found with ticker: " + ticker + ". Please try again.");
+                continue;
+            }
+
+            // --- quantity input ---
+            ConsolePrinter.printMenuOption("Enter quantity for " + stock.getTicker() + ":");
+            int quantity;
+            try {
+                quantity = Integer.parseInt(scanner.nextLine().trim());
+            } catch (NumberFormatException e) {
+                ConsolePrinter.printError("Invalid quantity. Please try again.");
+                continue;
+            }
+
+            // --- trade summary ---
+            double pricePerStock = stock.getPrice();
+            double totalCost = pricePerStock * quantity;
+            double balanceAfterPurchase = (user.getCashBalance() - user.getPortfolio().getTotalValue()) - totalCost;
+
+            ConsolePrinter.printMenuHeader("TRADE SUMMARY");
+            ConsolePrinter.printSeparator();
+            System.out.println("Ticker: " + stock.getTicker());
+            System.out.println("Quantity: " + quantity);
+            System.out.printf("Price per stock: %.2f DKK%n", pricePerStock);
+            System.out.printf("Total cost: %.2f DKK%n", totalCost);
+            System.out.printf("Balance after purchase: %.2f DKK%n", balanceAfterPurchase);
+            ConsolePrinter.printSeparator();
+
+            // --- confirmation ---
+            ConsolePrinter.printMenuOption("Confirm purchase? (y / n):");
+            String confirmation = scanner.nextLine().trim().toLowerCase();
+
+            if (!confirmation.equals("y")) {
                 ConsolePrinter.printError("Purchase cancelled. Starting over...");
+                continue;
+            }
+
+            // --- delegate all logic to PortfolioService ---
+            try {
+                portfolioService.buy(user, ticker, quantity);
+                ConsolePrinter.printConfirmation("Purchase completed!");
+            } catch (Exception e) {
+                ConsolePrinter.printError(e.getMessage());
+                continue;
+            }
+
+            // --- buy another? ---
+            ConsolePrinter.printMenuOption("Buy another stock? (y / n):");
+            if (!scanner.nextLine().trim().toLowerCase().equals("y")) {
+                start();
+                return;
             }
         }
     }
