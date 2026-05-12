@@ -124,8 +124,11 @@ public class MainMenu {
     private void userNotFound() {
         ConsolePrinter.printError("User not found");
         while (true) {
-            ConsolePrinter.printMenuHeader("\nWould you like to register as a new user?");
-            ConsolePrinter.printMenuOption("Yes/No");
+            ConsolePrinter.printSeparator();
+            ConsolePrinter.printMenuHeader("Would you like to register as a new user?");
+            ConsolePrinter.printMenuOption("1. Yes" +
+                    "\n2. No");
+            ConsolePrinter.printSeparator();
 
             String choice = scanner.nextLine().trim().toLowerCase();
 
@@ -133,22 +136,25 @@ public class MainMenu {
              * If the user chooses "yes" register, they will be sent here.
              * The user's full name, email adress and birth date is collected and a new user ID is generated.
              */
-            if (choice.equals("yes")) {
+            if (choice.equals("1")) {
                 //register user here
                     System.out.println();
                     ConsolePrinter.printMenuTitle("──────────────────────────────────────── Register New User ────────────────────────────────────────");
                     ConsolePrinter.printMenuHeader("Thank you for your interest in Investeringsklubben! You're about to register as a new user and need" +
                             "\nto answer a few questions in order to get access to the platform and start investing.");
-                    ConsolePrinter.printSeparator();
 
+                    System.out.println();
+                    ConsolePrinter.printMenuTitle("────────────────────────────────── Register New User ─ Step 1/3 ──────────────────────────────────");
                     ConsolePrinter.printMenuOption("Please, enter your full name: ");
                     String fullName = scanner.nextLine();
 
                     System.out.println();
+                ConsolePrinter.printMenuTitle("────────────────────────────────── Register New User ─ Step 2/3 ──────────────────────────────────");
                     ConsolePrinter.printMenuOption("Please, enter your e-mail address: ");
                     String email = scanner.nextLine();
 
                     System.out.println();
+                ConsolePrinter.printMenuTitle("────────────────────────────────── Register New User ─ Step 3/3 ──────────────────────────────────");
                     ConsolePrinter.printMenuOption("Please, enter your birthday (using this format: dd-mm-yyyy): ");
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
                     LocalDate birthDate = LocalDate.parse(scanner.nextLine(), formatter);
@@ -169,12 +175,12 @@ public class MainMenu {
                 userService.addUser(newUser);
                 System.out.println();
                 ConsolePrinter.printMenuTitle("─────────────────────────────────────── Registration Complete ─────────────────────────────────────");
-                ConsolePrinter.printConfirmation("Congratulations, you've succesfully created a new user!");
+                ConsolePrinter.printConfirmation("Registration complete!");
                 ConsolePrinter.printMenuOption("Your unique user ID is " + Colors.ANSI_BLUE + newUserId + Colors.MENUOPTION + " and will be used to log in to your account from now on." +
                         "\nWelcome to Investeringsklubben! ٩(◕‿◕)۶" + Colors.RESET);
                 start();
                 break;
-            } else if (choice.equals("no")) {
+            } else if (choice.equals("2")) {
                 start();
                 break;
             }

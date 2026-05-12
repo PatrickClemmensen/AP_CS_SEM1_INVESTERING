@@ -36,12 +36,12 @@ public class LeaderMenu {
                 int input = Integer.parseInt(scanner.nextLine().trim());
                 LeaderOption option = LeaderOption.fromChoice(input);
                 if (option == LeaderOption.EXIT) {
-                    ConsolePrinter.printConfirmation("Logout succesful...");
+                    ConsolePrinter.printConfirmation("Logout succesful!");
                     break;
                 }
                 handleChoice(option);
             } catch (IllegalArgumentException e) {
-                ConsolePrinter.printError("Invalid choice, try again.");
+                ConsolePrinter.printError("Invalid choice, please try again.");
             }
         }
     }
@@ -67,6 +67,7 @@ public class LeaderMenu {
     private void handleChoice(LeaderOption option) {
         switch (option) {
             case OPTION_1 -> viewAllMembers();
+            case OPTION_2 -> viewLeaderboard();
         }
     }
 
@@ -96,17 +97,33 @@ public class LeaderMenu {
         show();
     }
 
-    private void viewLeaderBoard() {
+    private void viewLeaderboard() {
         List<User> members = new ArrayList<>(userService.getAllUsers());
-        members.sort(Comparator.comparingInt(User::getUserId));
 
         for (User member : members) {
             portfolioService.loadPortfolio(member);
         }
 
         System.out.println();
-        ConsolePrinter.printMenuTitle("──────────────────────────────────────────── All Members ──────────────────────────────────────────");
+        ConsolePrinter.printMenuTitle("─────────────────────────────────────────── Leaderboard ───────────────────────────────────────────");
+        System.out.printf(Colors.MENUHEADER + "%-5s %-25s %9s%n" + Colors.RESET,
+                "RANK", "NAME", "TOTAL WEALTH (DKK)");
+        ConsolePrinter.printSeparator();
 
+        int[] rank = {1};
+        members.stream()
+                .sorted(Comparator.comparingDouble(
+                                (User u) -> u.getCashBalance() + u.getPortfolio().getTotalValue())
+                        .reversed())
+                .limit(10)
+                .forEach(member -> {
+                    double total = member.getCashBalance() + member.getPortfolio().getTotalValue();
+                    System.out.printf(Colors.MENUOPTION + "%-5d %-25s %9.2f%n" + Colors.RESET,
+                            rank[0]++, member.getFullName(), total);
+                });
+
+        ConsolePrinter.printSeparator();
+        show();
     }
 
 }

@@ -4,6 +4,7 @@ package ui.enums;
 public enum LeaderOption {
 
     OPTION_1(1, "View all members"),
+    OPTION_2(2, "View leaderboard"),
     EXIT(0, "Logout");
 
     private final int value;
