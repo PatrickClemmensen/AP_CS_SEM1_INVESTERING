@@ -19,6 +19,7 @@ public class User implements CSVSerializable {
     private double cashBalance;
     private final Portfolio portfolio;
     private boolean portfolioLoaded = false;
+    private final double initialCash;
 
 
 
@@ -34,6 +35,7 @@ public class User implements CSVSerializable {
         this.createdAt = createdAt;
         this.lastUpdated = lastUpdated;
         this.portfolio = new Portfolio();
+        this.initialCash = initialCash;
     }
 
     // TODO: add getters
@@ -62,6 +64,13 @@ public class User implements CSVSerializable {
         return cashBalance;
     }
 
+    public void setCashBalance(double cashBalance) {
+        this.cashBalance = cashBalance;
+    }
+
+    public double getInitialCash() {
+        return initialCash;
+    }
 
     @Override
     public String toString() {

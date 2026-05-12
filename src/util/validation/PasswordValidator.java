@@ -1,6 +1,6 @@
 package util.validation;
 
-import util.AppConstants;
+import util.constants.AppConstants;
 import util.exception.InvalidInputException;
 
 public class PasswordValidator {

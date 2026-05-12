@@ -100,4 +100,5 @@ public class Stock extends Asset implements Tradeable, CSVSerializable {
         return String.format("%-10s %-40s %-22s %16.2f %8s", getTicker(), getName(), getSector(), getPrice(), getCurrency());
 
     }
+
 }
