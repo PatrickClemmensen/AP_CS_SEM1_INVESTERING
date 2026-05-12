@@ -7,7 +7,7 @@ import model.transaction.Transaction;
 import service.PortfolioService;
 import service.StockMarketService;
 import ui.enums.MemberOption;
-import util.AppConstants;
+import util.constants.AppConstants;
 import util.constants.Colors;
 import util.csv.CSVWriter;
 import util.printing.ConsolePrinter;

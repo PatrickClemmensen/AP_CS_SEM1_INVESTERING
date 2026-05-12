@@ -1,5 +1,5 @@
 // src/util/AppConstants.java
-package util;
+package util.constants;
 
 public class AppConstants {
     private AppConstants() {} // prevent instantiation

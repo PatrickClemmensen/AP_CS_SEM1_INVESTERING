@@ -1,6 +1,6 @@
 package util.csv;
 
-import util.AppConstants;
+import util.constants.AppConstants;
 import util.printing.ConsolePrinter;
 
 import java.io.BufferedReader;

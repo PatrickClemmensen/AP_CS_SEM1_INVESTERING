@@ -1,0 +1,26 @@
+ticker;name;sector;price;currency;rating;dividend_yield;market;last_updated
+NOVO-B;Novozymes B;Health Care;780;DKK;AA;1,6;Nasdaq Copenhagen;01-03-2025
+MAERSK-B;A,P, Møller - Mærsk B;Industrials;14200;DKK;A+;0,5;Nasdaq Copenhagen;01-03-2025
+CARL-B;Carlsberg B;Consumer Goods;1020;DKK;A;2,2;Nasdaq Copenhagen;01-03-2025
+DANSKE;Danske Bank;Financials;208;DKK;BBB+;4,5;Nasdaq Copenhagen;01-03-2025
+VWS;Vestas Wind Systems;Energy;220;DKK;A-;0;Nasdaq Copenhagen;01-03-2025
+ORSTED;Ørsted;Utilities;490;DKK;A;1,8;Nasdaq Copenhagen;01-03-2025
+COLO-B;Coloplast B;Health Care;980;DKK;AA-;1,5;Nasdaq Copenhagen;01-03-2025
+ROCK-B;Rockwool B;Industrials;2380;DKK;A+;2;Nasdaq Copenhagen;01-03-2025
+PANDORA;Pandora;Consumer Goods;820;DKK;BBB;3,1;Nasdaq Copenhagen;01-03-2025
+GN;GN Store Nord;Health Care;235;DKK;BBB-;0,8;Nasdaq Copenhagen;01-03-2025
+TRYG;Tryg;Financials;172;DKK;A-;3,9;Nasdaq Copenhagen;01-03-2025
+DSV;DSV A/S;Industrials;1480;DKK;AA-;1;Nasdaq Copenhagen;01-03-2025
+NETC;Netcompany;Technology;390;DKK;BBB+;0;Nasdaq Copenhagen;01-03-2025
+AMBU-B;Ambu B;Health Care;138;DKK;BB+;0;Nasdaq Copenhagen;01-03-2025
+TOP;Topdanmark;Financials;362;DKK;A;4,2;Nasdaq Copenhagen;01-03-2025
+ISS;ISS A/S;Industrials;145;DKK;BBB;3;Nasdaq Copenhagen;01-03-2025
+JYSK;Jyske Bank;Financials;475;DKK;BBB+;3,5;Nasdaq Copenhagen;01-03-2025
+NZYM-B;Novozymes B;Health Care;372;DKK;AA;1,2;Nasdaq Copenhagen;01-03-2025
+SAS-DKK;SAS AB;Industrials;1,6;DKK;B-;0;Nasdaq Copenhagen;01-03-2025
+SIM;SimCorp;Technology;768;DKK;A-;1,7;Nasdaq Copenhagen;01-03-2025
+TRMD-B;Torm B;Energy;295;DKK;BB+;2,8;Nasdaq Copenhagen;01-03-2025
+BAKKO;Bavarian Nordic;Health Care;240;DKK;BB;0;Nasdaq Copenhagen;01-03-2025
+ALK-B;ALK-Abelló B;Health Care;1320;DKK;A-;0,9;Nasdaq Copenhagen;01-03-2025
+NKT;NKT A/S;Industrials;658;DKK;BBB+;1,4;Nasdaq Copenhagen;01-03-2025
+CHEMM;Chemometec;Health Care;960;DKK;BB;0;Nasdaq Copenhagen;01-03-2025
