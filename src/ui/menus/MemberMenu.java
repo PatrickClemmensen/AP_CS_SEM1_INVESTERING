@@ -71,7 +71,7 @@ public class MemberMenu {
     private void show() {
         System.out.println();
         ConsolePrinter.printMenuTitle("─────────────────────────────────────────── Club Member ───────────────────────────────────────────");
-        ConsolePrinter.printMenuOption("Welcome " + user.getFullName() + ", you current cash balance is " + (user.getCashBalance() - user.getPortfolio().getTotalValue()) + " " + AppConstants.BASE_CURRENCY);
+        ConsolePrinter.printMenuOption("Welcome " + user.getFullName() + ", you current cash balance is " + (user.getCashBalance()) + " " + AppConstants.BASE_CURRENCY);
         ConsolePrinter.printSeparator();
         for (MemberOption option : MemberOption.values()) {
             ConsolePrinter.printMenuOption(option.getValue() + ". " + option.getLabel());
@@ -114,7 +114,7 @@ public class MemberMenu {
                     "Total Gain:", totalGainColored) + Colors.RESET);
         }
 
-        //show();
+        show();
     }
     // TODO: prompt for ticker and quantity
     private void buyStock() {
@@ -150,7 +150,7 @@ public class MemberMenu {
             // --- trade summary ---
             double pricePerStock = stock.getPrice();
             double totalCost = pricePerStock * quantity;
-            double balanceAfterPurchase = (user.getCashBalance() - user.getPortfolio().getTotalValue()) - totalCost;
+            double balanceAfterPurchase = (user.getCashBalance()) - totalCost;
 
             ConsolePrinter.printMenuHeader("TRADE SUMMARY");
             ConsolePrinter.printSeparator();
@@ -172,7 +172,8 @@ public class MemberMenu {
 
             // --- delegate all logic to PortfolioService ---
             try {
-                portfolioService.buy(user, ticker, quantity);
+                Transaction transaction = portfolioService.buy(user, ticker, quantity);
+                CSVWriter.append(AppConstants.TRANSACTIONS_FILE, transaction);
                 ConsolePrinter.printConfirmation("Purchase completed!");
             } catch (Exception e) {
                 ConsolePrinter.printError(e.getMessage());
@@ -226,7 +227,7 @@ public class MemberMenu {
             //Calculate summary figures
             double unitPrice = position.getAsset().getPrice();
             double totalProceeds = unitPrice * quantity;
-            double projectedCash = (user.getCashBalance() - user.getPortfolio().getTotalValue()) + totalProceeds;
+            double projectedCash = (user.getCashBalance()) + totalProceeds;
 
             //Display order summary - no changes happen yet
             ConsolePrinter.printMenuHeader("\n––– Order Summary –––");
