@@ -1,5 +1,6 @@
 package ui.menus;
 
+import model.asset.Stock;
 import model.portfolio.Position;
 import model.portfolio.User;
 import service.PortfolioService;
@@ -12,7 +13,6 @@ import java.util.Scanner;
 
 /**
  * Menu flow for Club Members.
- *
  * A Club Member can do the following:
  *       <ul>
  *           <li>View Portfolio</li>
@@ -31,8 +31,8 @@ public class MemberMenu {
     /**
      * Constructor for MemberMenu object.
      * Creates a MemberMenu for the given user, backed by the provided services.
-     * @param user the logged in user
-     * @param marketService - live data from the market
+     * @param user             the logged-in user
+     * @param marketService    - live data from the market
      * @param portfolioService - live data from the user's portfolio
      */
     public MemberMenu(User user, StockMarketService marketService, PortfolioService portfolioService) {
@@ -43,7 +43,7 @@ public class MemberMenu {
     }
 
     /**
-     * Initiation of the menu process - displays the menu and loops until the user chooses to exit..
+     * Initiation of the menu process - displays the menu and loops until the user chooses to exit.
      * Also contains the logic for exiting the menu.
      */
     public void start() {
@@ -53,7 +53,7 @@ public class MemberMenu {
                 int input = Integer.parseInt(scanner.nextLine().trim());
                 MemberOption option = MemberOption.fromChoice(input);
                 if (option == MemberOption.EXIT) {
-                    ConsolePrinter.printConfirmation("Logout succesful...");
+                    ConsolePrinter.printConfirmation("Logout successful...");
                     break;
                 }
                 handleChoice(option);
@@ -114,21 +114,77 @@ public class MemberMenu {
 
         show();
     }
-
+    // TODO: prompt for ticker and quantity
     private void buyStock() {
-        ConsolePrinter.printConfirmation("Placeholder for buyStock()");
-        // TODO: prompt for ticker and quantity
-        // TODO: call portfolioService.buy() and handle any exceptions
-    }
+        while(true){
+            ConsolePrinter.printConfirmation("Buy stock");
+            marketService.viewMarket();
+            Stock stock = null; //Creates a stock-vale before the loop starts
 
-    private void sellStock() {
-        ConsolePrinter.printConfirmation("Placeholder for sellStock()");
-        // TODO: prompt for ticker and quantity
-        // TODO: call portfolioService.sell() and handle any exceptions
-    }
+            while (stock == null) { //As long as stock is null, the user will be asked again
+                ConsolePrinter.printMenuOption("Please enter ticker:    |   Or press 0 to cancel");
+                String ticker = scanner.nextLine().trim().toUpperCase();
 
-    private void viewMarket() {
-        marketService.viewMarket();
-        show();
+                if (ticker.equals("0")) {
+                    ConsolePrinter.printConfirmation("Purchase cancelled");
+                    return;
+                }
+                    stock = marketService.findByTicker(ticker);
+
+                    if (stock == null) {
+                        ConsolePrinter.printError("No stock found with ticker: " + ticker);
+                        ConsolePrinter.printMenuOption("Please try again.");
+                    }
+                }
+
+                ConsolePrinter.printConfirmation("Selected stock: " + stock.getTicker());
+
+                    ConsolePrinter.printMenuOption("Enter quantity for " + stock.getTicker() + ":");
+
+                    int quantity = Integer.parseInt(scanner.nextLine().trim()); //Changes String input to int
+
+                    double pricePerStock = stock.getPrice();//What one stock costs
+                    double totalCost = pricePerStock * quantity;//All stocks together
+                    double balanceAfterPurchase = (user.getCashBalance() - user.getPortfolio().getTotalValue()) - totalCost;//Users potential cash balance after the purchase. The purchase isn't done here.
+
+                    //Trade summary:
+                    ConsolePrinter.printMenuHeader("TRADE SUMMARY");
+                    ConsolePrinter.printSeparator();
+                    System.out.println("Ticker: " + stock.getTicker());
+                    System.out.println("Quantity: " + quantity);
+                    System.out.printf("Price per stock: %.2f DKK%n", pricePerStock);
+                    System.out.printf("Total cost: %.2f DKK%n", totalCost);
+                    System.out.printf("Your cash balance after the purchase: %.2f DKK%n", balanceAfterPurchase);
+                    ConsolePrinter.printSeparator();
+                    ConsolePrinter.printMenuOption("Confirm purchase? Type y or n:");
+                    String confirmation = scanner.nextLine().trim().toLowerCase(); //reads user input
+
+        if (confirmation.equals("y")) {
+            //portfolioService handles logic
+            portfolioService.buy(user, stock.getTicker(), quantity); //purchase is done. withdraws money, updates position, writes transaction to transactions.csv
+            ConsolePrinter.printConfirmation("Purchase completed!");
+
+            ConsolePrinter.printMenuOption("Buy another stock? (y or n)");
+            String another = scanner.nextLine().trim().toLowerCase();
+
+            if (!another.equals("y")) {
+                start();
+            }
+            } else {
+                ConsolePrinter.printError("Purchase cancelled. Starting over...");
+            }
+        }
     }
-}
+    // TODO: call portfolioService.buy() and handle any exceptions
+
+        private void sellStock () {
+            ConsolePrinter.printConfirmation("Placeholder for sellStock()");
+            // TODO: prompt for ticker and quantity
+            // TODO: call portfolioService.sell() and handle any exceptions
+        }
+
+        private void viewMarket () {
+            marketService.viewMarket();
+            show();
+        }
+    }
