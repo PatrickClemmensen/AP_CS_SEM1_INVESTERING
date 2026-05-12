@@ -58,6 +58,10 @@ public class PortfolioService {
         return null;
     }
 
+    /**
+     * Reads Transaction.csv, updates a given users portfolio with positions.
+     * @param user user which portfolio is loaded
+     */
     public void loadPortfolio(User user){
         List<String[]> rows = CSVReader.read(AppConstants.TRANSACTIONS_FILE);
 

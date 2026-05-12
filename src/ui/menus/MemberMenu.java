@@ -1,4 +1,4 @@
-package ui;
+package ui.menus;
 
 import model.asset.Stock;
 import model.portfolio.Portfolio;
@@ -6,6 +6,7 @@ import model.portfolio.Position;
 import model.portfolio.User;
 import service.PortfolioService;
 import service.StockMarketService;
+import ui.enums.MemberOption;
 import util.AppConstants;
 import util.constants.Colors;
 import util.printing.ConsolePrinter;
@@ -27,14 +28,12 @@ public class MemberMenu {
     private User user;
     private StockMarketService marketService;
     private PortfolioService portfolioService;
-
-    Scanner scanner = new Scanner(System.in);
+    private Scanner scanner = new Scanner(System.in);
 
     /**
      * Constructor for MemberMenu object.
      * Creates a MemberMenu for the given user, backed by the provided services.
-     *
-     * @param user             the logged in user
+     * @param user             the logged-in user
      * @param marketService    - live data from the market
      * @param portfolioService - live data from the user's portfolio
      */
@@ -71,8 +70,8 @@ public class MemberMenu {
      */
     private void show() {
         System.out.println();
-        ConsolePrinter.printSeparator();
-        ConsolePrinter.printMenuHeader("Welcome " + user.getFullName() + ", you current cash balance is " + (user.getCashBalance() - user.getPortfolio().getTotalValue()) + " " + AppConstants.BASE_CURRENCY);
+        ConsolePrinter.printMenuTitle("─────────────────────────────────────────── Club Member ───────────────────────────────────────────");
+        ConsolePrinter.printMenuOption("Welcome " + user.getFullName() + ", you current cash balance is " + (user.getCashBalance() - user.getPortfolio().getTotalValue()) + " " + AppConstants.BASE_CURRENCY);
         ConsolePrinter.printSeparator();
         for (MemberOption option : MemberOption.values()) {
             ConsolePrinter.printMenuOption(option.getValue() + ". " + option.getLabel());
@@ -82,7 +81,6 @@ public class MemberMenu {
 
     /**
      * Directs the user to a new submenu based on the option they choose.
-     *
      * @param option choice made by the logged-in user
      */
     private void handleChoice(MemberOption option) {
@@ -109,7 +107,7 @@ public class MemberMenu {
             double totalGain = user.getPortfolio().getTotalGain();
             String totalGainColored = totalGain >= 0
                     ? Colors.ANSI_GREEN + String.format("%+12.2f DKK", totalGain) + Colors.RESET
-                    : Colors.ANSI_RED + String.format("%12.2f DKK", totalGain) + Colors.RESET;
+                    : Colors.ANSI_RED   + String.format("%12.2f DKK",  totalGain) + Colors.RESET;
 
             System.out.println(Colors.MENUOPTION + String.format("%-12s %12.2f DKK     %-10s %s",
                     "Total Value:", user.getPortfolio().getTotalValue(),

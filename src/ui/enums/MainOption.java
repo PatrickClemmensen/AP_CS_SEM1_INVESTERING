@@ -1,15 +1,12 @@
-package ui;
+package ui.enums;
 
-/**
- * Represents the selectable options in the Member menu, each with a numeric value and a display label.
- */
-public enum MemberOption {
+import util.printing.ConsolePrinter;
 
-    OPTION_1(1, "View portfolio"),
-    OPTION_2(2, "Buy stock"),
-    OPTION_3(3, "Sell Stock"),
-    OPTION_4(4, "View Market"),
-    EXIT(0, "Logout");
+public enum MainOption {
+
+    OPTION_1(1, "Club Member"),
+    OPTION_2(2,"Club Leader"),
+    EXIT(0, "Exit");
 
     private final int value;
     private final String label;
@@ -18,7 +15,7 @@ public enum MemberOption {
      * @param value the numeric choice the user types to select this option
      * @param label the description of the value that will be printed
      */
-    MemberOption(int value, String label) {
+    MainOption(int value, String label) {
         this.value = value;
         this.label = label;
     }
@@ -44,10 +41,11 @@ public enum MemberOption {
      * @return the MemberOption matching the given value
      * @throws IllegalArgumentException if no option matches the given value
      */
-    public static MemberOption fromChoice(int value) {
-        for (MemberOption option : values()) {
+    public static MainOption fromChoice(int value) {
+        for (MainOption option : values()) {
             if (option.value == value) return option;
         }
         throw new IllegalArgumentException("Invalid menu choice: " + value);
     }
+
 }
