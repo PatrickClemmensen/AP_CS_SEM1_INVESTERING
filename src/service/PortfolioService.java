@@ -67,6 +67,46 @@ public class PortfolioService {
     }
 
     public Transaction sell(User user, String ticker, int quantity) {
+        //Find the stock in the market to get the current price
+        Stock stock = marketService.findByTicker(ticker);
+
+        //Get the user's portfolio and find their position in this stock
+        Portfolio portfolio = user.getPortfolio();
+        Position position = portfolio.findByTicker(ticker);
+
+        //Safety check
+        if (position == null || position.getQuantity() < quantity) {
+            throw new InsufficientQuantityException("Insufficient quantity for ticker " + ticker);
+        }
+
+        //Calculate how much cash the user receives from the sale
+        double totalValue = stock.getPrice() * quantity;
+
+        //Credit the cash to the user's balance
+        user.addCash(totalValue);
+
+        //Reduce the position by the sold quantity
+        position.decreaseQuantity(quantity);
+
+
+        //If they sold everything, remove the position from the portfolio entirely
+        if (position.getQuantity() == 0) {
+            portfolio.removePosition(position);
+        }
+
+        //Build and return the transaction record
+        return new Transaction(
+                user.getUserId(),
+                LocalDate.now(),
+                ticker,
+                stock.getPrice(),
+                AppConstants.BASE_CURRENCY,
+                OrderType.SELL,
+                quantity
+        );
+    }
+
+
         // TODO: validate ticker (TickerValidator)
         // TODO: validate quantity (QuantityValidator)
         // TODO: check user owns this stock (portfolio.findByTicker())
@@ -81,8 +121,8 @@ public class PortfolioService {
         //   Hint: add a removePosition(String ticker) method to Portfolio
 
         // TODO: create and return a Transaction with OrderType.SELL
-        return null;
-    }
+
+
 
     /**
      * Reads Transaction.csv, updates a given users portfolio with positions.

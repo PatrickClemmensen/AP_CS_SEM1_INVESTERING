@@ -1,5 +1,6 @@
 package app;
 
+import model.asset.Stock;
 import service.PortfolioService;
 import service.StockMarketService;
 import service.UserService;
@@ -14,5 +15,6 @@ public class Main {
         PortfolioService portfolioService = new PortfolioService(marketService);
 
         new MainMenu(userService, marketService,portfolioService).start();
+
     }
 }

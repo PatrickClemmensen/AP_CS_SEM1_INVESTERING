@@ -49,6 +49,7 @@ public class Position implements Rankable, CSVSerializable {
         return averageBuyPrice * quantity;
     }
 
+
     public double getUnrealizedGain() {
         return getCurrentValue() - getCostBasis();
     }

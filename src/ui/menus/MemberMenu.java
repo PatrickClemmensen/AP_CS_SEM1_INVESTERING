@@ -3,11 +3,13 @@ package ui.menus;
 import model.asset.Stock;
 import model.portfolio.Position;
 import model.portfolio.User;
+import model.transaction.Transaction;
 import service.PortfolioService;
 import service.StockMarketService;
 import ui.enums.MemberOption;
 import util.AppConstants;
 import util.constants.Colors;
+import util.csv.CSVWriter;
 import util.printing.ConsolePrinter;
 import java.util.Scanner;
 
@@ -31,8 +33,8 @@ public class MemberMenu {
     /**
      * Constructor for MemberMenu object.
      * Creates a MemberMenu for the given user, backed by the provided services.
-     * @param user             the logged-in user
-     * @param marketService    - live data from the market
+     * @param user the logged-in user
+     * @param marketService - live data from the market
      * @param portfolioService - live data from the user's portfolio
      */
     public MemberMenu(User user, StockMarketService marketService, PortfolioService portfolioService) {
@@ -69,7 +71,7 @@ public class MemberMenu {
     private void show() {
         System.out.println();
         ConsolePrinter.printMenuTitle("─────────────────────────────────────────── Club Member ───────────────────────────────────────────");
-        ConsolePrinter.printMenuOption("Welcome " + user.getFullName() + ", you current cash balance is " + (user.getCashBalance() - user.getPortfolio().getTotalValue()) + " " + AppConstants.BASE_CURRENCY);
+        ConsolePrinter.printMenuOption("Welcome " + user.getFullName() + ", you current cash balance is " + (user.getCashBalance()) + " " + AppConstants.BASE_CURRENCY);
         ConsolePrinter.printSeparator();
         for (MemberOption option : MemberOption.values()) {
             ConsolePrinter.printMenuOption(option.getValue() + ". " + option.getLabel());
@@ -148,7 +150,7 @@ public class MemberMenu {
             // --- trade summary ---
             double pricePerStock = stock.getPrice();
             double totalCost = pricePerStock * quantity;
-            double balanceAfterPurchase = (user.getCashBalance() - user.getPortfolio().getTotalValue()) - totalCost;
+            double balanceAfterPurchase = (user.getCashBalance()) - totalCost;
 
             ConsolePrinter.printMenuHeader("TRADE SUMMARY");
             ConsolePrinter.printSeparator();
@@ -170,7 +172,8 @@ public class MemberMenu {
 
             // --- delegate all logic to PortfolioService ---
             try {
-                portfolioService.buy(user, ticker, quantity);
+                Transaction transaction = portfolioService.buy(user, ticker, quantity);
+                CSVWriter.append(AppConstants.TRANSACTIONS_FILE, transaction);
                 ConsolePrinter.printConfirmation("Purchase completed!");
             } catch (Exception e) {
                 ConsolePrinter.printError(e.getMessage());
@@ -187,11 +190,82 @@ public class MemberMenu {
     }
     // TODO: call portfolioService.buy() and handle any exceptions
 
-        private void sellStock () {
-            ConsolePrinter.printConfirmation("Placeholder for sellStock()");
+    private void sellStock() {
+        while (true){
+
+            //Shows the user's portfolio so they know what they can sell
+            viewPortfolio();
+
+            Position position = null;
+            String ticker = "";
+
+
             // TODO: prompt for ticker and quantity
+            //Keep asking until the user enters a ticker they actually own
+            while (position == null){
+                ConsolePrinter.printMenuOption("Enter ticker of the stock you would like to sell: ");
+                ticker = scanner.nextLine().trim().toUpperCase();
+
+                //Look up the ticker in the portfolio, not the market
+                position = user.getPortfolio().findByTicker(ticker);
+
+                if (position == null) {
+                    ConsolePrinter.printError("You do not own that stock. Please try again.");
+                }
+            }
+
+            //Ask how many shares to sell
+            ConsolePrinter.printMenuOption("Enter quantity");
+            int quantity = Integer.parseInt(scanner.nextLine().trim());
+
+            //Validate quantity doesn't exceed what they own
+            if(quantity > position.getQuantity()){
+                ConsolePrinter.printMenuOption("You only own " + position.getQuantity() + " shares of " + ticker + ". Starting over..." );
+                continue;
+            }
+
+            //Calculate summary figures
+            double unitPrice = position.getAsset().getPrice();
+            double totalProceeds = unitPrice * quantity;
+            double projectedCash = (user.getCashBalance()) + totalProceeds;
+
+            //Display order summary - no changes happen yet
+            ConsolePrinter.printMenuHeader("\n––– Order Summary –––");
+            ConsolePrinter.printMenuOption("Ticker:           " + ticker.toUpperCase());
+            ConsolePrinter.printMenuOption("Quantity:         " + quantity + " shares");
+            ConsolePrinter.printMenuOption("Unit Price:       " + unitPrice + " DKK");
+            ConsolePrinter.printMenuOption("Total Proceeds:   " + totalProceeds + " DKK");
+            ConsolePrinter.printMenuOption("Cash After Sale   " + projectedCash + " DKK");
+
+            ConsolePrinter.printMenuHeader("\nConfirm sale? (Yes/No)");
+            String confirm = scanner.nextLine().trim().toLowerCase();
+
             // TODO: call portfolioService.sell() and handle any exceptions
+            if(confirm.equals("yes")) {
+                //Execute the sell - credits cash, reduces/removes position, returns Transaction
+                Transaction transaction = portfolioService.sell(user, ticker, quantity);
+
+                //Write transaction to CSV
+                CSVWriter.append(AppConstants.TRANSACTIONS_FILE, transaction);
+
+                ConsolePrinter.printConfirmation("Sale Complete!");
+
+                //Ask if they want to sell another stock
+                ConsolePrinter.printMenuOption("Sell another stock (Yes/No)");
+                String another = scanner.nextLine().trim().toLowerCase();
+
+                //If not, exit the loop and return to the menu
+                if (!another.equals("y")) {
+                    break;
+                }
+            } else {
+                //Canceled - nothing written, loop restarts
+                ConsolePrinter.printMenuOption("Sale canceled. Starting over...");
+                sellStock();
+            }
         }
+        show();
+    }
 
         private void viewMarket () {
             marketService.viewMarket();
