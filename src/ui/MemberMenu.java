@@ -1,5 +1,6 @@
 package ui;
 
+import model.asset.Stock;
 import model.portfolio.Portfolio;
 import model.portfolio.Position;
 import model.portfolio.User;
@@ -27,11 +28,14 @@ public class MemberMenu {
     private StockMarketService marketService;
     private PortfolioService portfolioService;
 
+    Scanner scanner = new Scanner(System.in);
+
     /**
      * Constructor for MemberMenu object.
      * Creates a MemberMenu for the given user, backed by the provided services.
-     * @param user the logged in user
-     * @param marketService - live data from the market
+     *
+     * @param user             the logged in user
+     * @param marketService    - live data from the market
      * @param portfolioService - live data from the user's portfolio
      */
     public MemberMenu(User user, StockMarketService marketService, PortfolioService portfolioService) {
@@ -46,7 +50,6 @@ public class MemberMenu {
      * Also contains the logic for exiting the menu.
      */
     public void start() {
-        Scanner scanner = new Scanner(System.in);
         show();
         while (true) {
             try {
@@ -54,7 +57,8 @@ public class MemberMenu {
                 MemberOption option = MemberOption.fromChoice(input);
                 if (option == MemberOption.EXIT) {
                     ConsolePrinter.printConfirmation("Logout succesful...");
-                    break;}
+                    break;
+                }
                 handleChoice(option);
             } catch (IllegalArgumentException e) {
                 ConsolePrinter.printError("Invalid choice, try again.");
@@ -78,6 +82,7 @@ public class MemberMenu {
 
     /**
      * Directs the user to a new submenu based on the option they choose.
+     *
      * @param option choice made by the logged-in user
      */
     private void handleChoice(MemberOption option) {
@@ -104,7 +109,7 @@ public class MemberMenu {
             double totalGain = user.getPortfolio().getTotalGain();
             String totalGainColored = totalGain >= 0
                     ? Colors.ANSI_GREEN + String.format("%+12.2f DKK", totalGain) + Colors.RESET
-                    : Colors.ANSI_RED   + String.format("%12.2f DKK",  totalGain) + Colors.RESET;
+                    : Colors.ANSI_RED + String.format("%12.2f DKK", totalGain) + Colors.RESET;
 
             System.out.println(Colors.MENUOPTION + String.format("%-12s %12.2f DKK     %-10s %s",
                     "Total Value:", user.getPortfolio().getTotalValue(),
@@ -113,21 +118,78 @@ public class MemberMenu {
 
         show();
     }
-
+    // TODO: prompt for ticker and quantity
     private void buyStock() {
-        ConsolePrinter.printConfirmation("Placeholder for buyStock()");
-        // TODO: prompt for ticker and quantity
-        // TODO: call portfolioService.buy() and handle any exceptions
-    }
-
-    private void sellStock() {
-        ConsolePrinter.printConfirmation("Placeholder for sellStock()");
-        // TODO: prompt for ticker and quantity
-        // TODO: call portfolioService.sell() and handle any exceptions
-    }
-
-    private void viewMarket() {
+        while(true){
+        ConsolePrinter.printConfirmation("Buy stock");
         marketService.viewMarket();
-        show();
+
+            Stock stock = null; //Creates a stock-vale before the loop starts
+
+            while (stock == null) { //As long as stock is null, the user will be asked again
+                ConsolePrinter.printMenuOption("Please enter ticker:    |   Or press 0 to cancel");
+                String ticker = scanner.nextLine().trim().toUpperCase();
+
+                if (ticker.equals("0")) {
+                    ConsolePrinter.printConfirmation("Purchase cancelled");
+                    return;
+                }
+                    stock = marketService.findByTicker(ticker); //importerer Stock. Kalder metoden findByTicker.
+
+                    if (stock == null) {
+                        ConsolePrinter.printError("No stock found with ticker: " + ticker); //Hvis der ikke findes en stock for den ticker vil den give fejl
+                        ConsolePrinter.printMenuOption("Please try again.");
+                    }
+                }
+
+                ConsolePrinter.printConfirmation("Selected stock: " + stock.getTicker());
+
+                    ConsolePrinter.printMenuOption("Enter quantity for " + stock.getTicker() + ":");
+
+                    int quantity = Integer.parseInt(scanner.nextLine().trim()); //Changes String input to int
+
+                    double pricePerStock = stock.getPrice();//What one stock costs
+                    double totalCost = pricePerStock * quantity;//All stocks together
+                    double balanceAfterPurchase = (user.getCashBalance() - user.getPortfolio().getTotalValue()) - totalCost;//Users potential cash balance after the purchase. The purchase isn't done here.
+
+                    //Trade summary:
+                    ConsolePrinter.printMenuHeader("TRADE SUMMARY");
+                    ConsolePrinter.printSeparator();
+                    System.out.println("Ticker: " + stock.getTicker());
+                    System.out.println("Quantity: " + quantity);
+                    System.out.printf("Price per stock: %.2f DKK%n", pricePerStock);
+                    System.out.printf("Total cost: %.2f DKK%n", totalCost);
+                    System.out.printf("Your cash balance after the purchase: %.2f DKK%n", balanceAfterPurchase);
+                    ConsolePrinter.printSeparator();
+                    ConsolePrinter.printMenuOption("Confirm purchase? Type y or n:");
+                    String confirmation = scanner.nextLine().trim().toLowerCase(); //reads user input
+
+        if (confirmation.equals("y")) {
+            //portfolioService handles logic
+            portfolioService.buy(user, stock.getTicker(), quantity); //purchase is done. witdraws money, updates position, writes transaction to transactions.csv
+            ConsolePrinter.printConfirmation("Purchase completed!");
+
+            ConsolePrinter.printMenuOption("Buy another stock? (y or n)");
+            String another = scanner.nextLine().trim().toLowerCase();
+
+            if (!another.equals("y")) {
+                start();
+            }
+            } else {
+                ConsolePrinter.printError("Purchase cancelled. Starting over...");
+            }
+        }
     }
-}
+    // TODO: call portfolioService.buy() and handle any exceptions
+
+        private void sellStock () {
+            ConsolePrinter.printConfirmation("Placeholder for sellStock()");
+            // TODO: prompt for ticker and quantity
+            // TODO: call portfolioService.sell() and handle any exceptions
+        }
+
+        private void viewMarket () {
+            marketService.viewMarket();
+            show();
+        }
+    }
