@@ -1,10 +1,10 @@
-package ui;
+package ui.menus;
 
-import model.portfolio.Portfolio;
 import model.portfolio.Position;
 import model.portfolio.User;
 import service.PortfolioService;
 import service.StockMarketService;
+import ui.enums.MemberOption;
 import util.AppConstants;
 import util.constants.Colors;
 import util.printing.ConsolePrinter;
@@ -26,6 +26,7 @@ public class MemberMenu {
     private User user;
     private StockMarketService marketService;
     private PortfolioService portfolioService;
+    private Scanner scanner = new Scanner(System.in);
 
     /**
      * Constructor for MemberMenu object.
@@ -46,7 +47,6 @@ public class MemberMenu {
      * Also contains the logic for exiting the menu.
      */
     public void start() {
-        Scanner scanner = new Scanner(System.in);
         show();
         while (true) {
             try {
@@ -54,7 +54,8 @@ public class MemberMenu {
                 MemberOption option = MemberOption.fromChoice(input);
                 if (option == MemberOption.EXIT) {
                     ConsolePrinter.printConfirmation("Logout succesful...");
-                    break;}
+                    break;
+                }
                 handleChoice(option);
             } catch (IllegalArgumentException e) {
                 ConsolePrinter.printError("Invalid choice, try again.");
@@ -67,8 +68,8 @@ public class MemberMenu {
      */
     private void show() {
         System.out.println();
-        ConsolePrinter.printSeparator();
-        ConsolePrinter.printMenuHeader("Welcome " + user.getFullName() + ", you current cash balance is " + (user.getCashBalance() - user.getPortfolio().getTotalValue()) + " " + AppConstants.BASE_CURRENCY);
+        ConsolePrinter.printMenuTitle("─────────────────────────────────────────── Club Member ───────────────────────────────────────────");
+        ConsolePrinter.printMenuOption("Welcome " + user.getFullName() + ", you current cash balance is " + (user.getCashBalance() - user.getPortfolio().getTotalValue()) + " " + AppConstants.BASE_CURRENCY);
         ConsolePrinter.printSeparator();
         for (MemberOption option : MemberOption.values()) {
             ConsolePrinter.printMenuOption(option.getValue() + ". " + option.getLabel());

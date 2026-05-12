@@ -17,4 +17,7 @@ public class AppConstants {
 
     // Currency
     public static final String BASE_CURRENCY      = "DKK";
+
+    // Club Leader Password
+    public static final String LEADER_PASSWORD = "admin";
 }
