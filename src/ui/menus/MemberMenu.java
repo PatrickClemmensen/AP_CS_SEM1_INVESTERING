@@ -1,7 +1,6 @@
 package ui.menus;
 
 import model.asset.Stock;
-import model.portfolio.Portfolio;
 import model.portfolio.Position;
 import model.portfolio.User;
 import service.PortfolioService;
@@ -14,7 +13,6 @@ import java.util.Scanner;
 
 /**
  * Menu flow for Club Members.
- *
  * A Club Member can do the following:
  *       <ul>
  *           <li>View Portfolio</li>
@@ -45,7 +43,7 @@ public class MemberMenu {
     }
 
     /**
-     * Initiation of the menu process - displays the menu and loops until the user chooses to exit..
+     * Initiation of the menu process - displays the menu and loops until the user chooses to exit.
      * Also contains the logic for exiting the menu.
      */
     public void start() {
@@ -55,7 +53,7 @@ public class MemberMenu {
                 int input = Integer.parseInt(scanner.nextLine().trim());
                 MemberOption option = MemberOption.fromChoice(input);
                 if (option == MemberOption.EXIT) {
-                    ConsolePrinter.printConfirmation("Logout succesful...");
+                    ConsolePrinter.printConfirmation("Logout successful...");
                     break;
                 }
                 handleChoice(option);
@@ -119,9 +117,8 @@ public class MemberMenu {
     // TODO: prompt for ticker and quantity
     private void buyStock() {
         while(true){
-        ConsolePrinter.printConfirmation("Buy stock");
-        marketService.viewMarket();
-
+            ConsolePrinter.printConfirmation("Buy stock");
+            marketService.viewMarket();
             Stock stock = null; //Creates a stock-vale before the loop starts
 
             while (stock == null) { //As long as stock is null, the user will be asked again
@@ -132,10 +129,10 @@ public class MemberMenu {
                     ConsolePrinter.printConfirmation("Purchase cancelled");
                     return;
                 }
-                    stock = marketService.findByTicker(ticker); //importerer Stock. Kalder metoden findByTicker.
+                    stock = marketService.findByTicker(ticker);
 
                     if (stock == null) {
-                        ConsolePrinter.printError("No stock found with ticker: " + ticker); //Hvis der ikke findes en stock for den ticker vil den give fejl
+                        ConsolePrinter.printError("No stock found with ticker: " + ticker);
                         ConsolePrinter.printMenuOption("Please try again.");
                     }
                 }
@@ -164,7 +161,7 @@ public class MemberMenu {
 
         if (confirmation.equals("y")) {
             //portfolioService handles logic
-            portfolioService.buy(user, stock.getTicker(), quantity); //purchase is done. witdraws money, updates position, writes transaction to transactions.csv
+            portfolioService.buy(user, stock.getTicker(), quantity); //purchase is done. withdraws money, updates position, writes transaction to transactions.csv
             ConsolePrinter.printConfirmation("Purchase completed!");
 
             ConsolePrinter.printMenuOption("Buy another stock? (y or n)");
