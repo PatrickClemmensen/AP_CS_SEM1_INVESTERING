@@ -36,7 +36,7 @@ public abstract class Asset {
         // TODO: initialize fields
         this.ticker = ticker;
         this.name = name;
-        this.price = price;
+        this.price = validatePrice(price);
         this.currency = currency;
         this.rating = rating;
         this.market = market;
@@ -72,6 +72,12 @@ public abstract class Asset {
         return lastUpdated;
     }
 
+    private double validatePrice(double price) {
+        if (price <= 0) {
+            throw new IllegalArgumentException("Price must be positive: " + price);
+        }
+        return price;
+    }
     /**
      * Returns a short readable summary of this asset.
      *

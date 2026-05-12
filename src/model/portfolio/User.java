@@ -58,6 +58,10 @@ public class User implements CSVSerializable {
         cashBalance += amount;
     }
 
+    public double getCash(){
+        return cashBalance;
+    }
+
 
     @Override
     public String toString() {
