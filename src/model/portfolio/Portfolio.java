@@ -4,8 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Portfolio {
-    // TODO: declare a list to hold positions
-    List<Position> portfolio = new ArrayList<>();
+    private List<Position> portfolio = new ArrayList<>();
+    private boolean loaded = false;
+
+    // --- Loaded Guard ---
+
+    public boolean isLoaded() {
+        return loaded;
+    }
+
+    public void setLoaded(boolean loaded) {
+        this.loaded = loaded;
+    }
+
+    // --- Position Management ---
 
     public void addPosition(Position position) {
         portfolio.add(position);
@@ -28,6 +40,8 @@ public class Portfolio {
                 .findFirst()
                 .orElse(null);
     }
+
+    // --- Calculations ---
 
     public double getTotalValue() {
         return portfolio.stream()

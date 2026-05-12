@@ -129,6 +129,8 @@ public class PortfolioService {
      * @param user user which portfolio is loaded
      */
     public void loadPortfolio(User user) {
+        if (user.getPortfolio().isLoaded()) return;
+
         List<String[]> rows = CSVReader.read(AppConstants.TRANSACTIONS_FILE);
 
         for (String[] row : rows) {
@@ -163,6 +165,8 @@ public class PortfolioService {
                 }
             }
         }
+
+        user.getPortfolio().setLoaded(true);
     }
 
 }
