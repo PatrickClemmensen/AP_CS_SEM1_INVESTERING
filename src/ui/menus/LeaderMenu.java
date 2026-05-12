@@ -71,6 +71,10 @@ public class LeaderMenu {
         }
     }
 
+    /**
+     * Displays a table of all registered members sorted by user ID,
+     * showing each member's cash balance, holdings value, and total wealth in DKK.
+     */
     private void viewAllMembers() {
         List<User> members = new ArrayList<>(userService.getAllUsers());
         members.sort(Comparator.comparingInt(User::getUserId));
@@ -97,6 +101,10 @@ public class LeaderMenu {
         show();
     }
 
+    /**
+     * Displays a leaderboard of the top 10 members ranked by total wealth (cash + holdings) in DKK,
+     * sorted in descending order.
+     */
     private void viewLeaderboard() {
         List<User> members = new ArrayList<>(userService.getAllUsers());
 
