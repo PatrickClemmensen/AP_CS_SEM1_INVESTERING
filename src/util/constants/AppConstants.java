@@ -8,7 +8,7 @@ public class AppConstants {
     public static final String STOCK_MARKET_FILE  = "data/stockMarket.csv";
     public static final String BOND_MARKET_FILE   = "data/bondMarket.csv";
     public static final String USERS_FILE         = "data/users.csv";
-    public static final String TRANSACTIONS_FILE  = "data/transactions.csv";
+    public static String TRANSACTIONS_FILE  = "data/transactions.csv";
     public static final String CURRENCY_FILE      = "data/currency.csv";
 
     // CSV
@@ -17,4 +17,7 @@ public class AppConstants {
 
     // Currency
     public static final String BASE_CURRENCY      = "DKK";
+
+    // Club Leader Password
+    public static final String LEADER_PASSWORD = "admin";
 }

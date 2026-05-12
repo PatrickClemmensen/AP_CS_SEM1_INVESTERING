@@ -34,7 +34,11 @@ public class Position implements Rankable, CSVSerializable {
     }
 
     public void decreaseQuantity(int qty) {
-        this.quantity -= qty;
+        if(this.quantity - qty <= 0){
+            this.quantity = 0;
+        }else{
+            this.quantity -= qty;
+        }
     }
 
     public double getCurrentValue() {

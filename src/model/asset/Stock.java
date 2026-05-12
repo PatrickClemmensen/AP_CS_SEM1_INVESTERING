@@ -40,7 +40,7 @@ public class Stock extends Asset implements Tradeable, CSVSerializable {
         super(ticker, name, price, currency, rating, market, lastUpdated);
         // TODO: initialize Stock-specific fields
         this.sector = sector;
-        this.dividendYield = dividendYield;
+        this.dividendYield = validateDividendYield(dividendYield);
     }
 
 
@@ -66,6 +66,14 @@ public class Stock extends Asset implements Tradeable, CSVSerializable {
                 String.valueOf(dividendYield),
                 getMarket(),
                 getLastUpdated().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+    }
+
+    public double validateDividendYield(double dividendYield){
+        if (dividendYield < 0) {
+            throw new IllegalArgumentException("Dividend Yield must be positive: " + dividendYield);
+        }
+        return dividendYield;
+
     }
 
     // TODO: add getters for sector and dividendYield

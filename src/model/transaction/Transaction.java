@@ -6,6 +6,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class Transaction implements CSVSerializable {
+    private static int idCounter = 0;
+
     private final int id;
     private final int userId;
     private final LocalDate date;
@@ -15,9 +17,9 @@ public class Transaction implements CSVSerializable {
     private final OrderType orderType;
     private final int quantity;
 
-    public Transaction(int id, int userId, LocalDate date, String ticker,
-                       double price, String currency, OrderType orderType, int quantity){
-        this.id = id;
+    public Transaction(int userId, LocalDate date, String ticker,
+                       double price, String currency, OrderType orderType, int quantity) {
+        this.id = ++idCounter;
         this.userId = userId;
         this.date = date;
         this.ticker = ticker;
@@ -27,14 +29,36 @@ public class Transaction implements CSVSerializable {
         this.quantity = quantity;
     }
 
-    // TODO: Add getters for id, userId, date, ticker, price, currency, orderType, quantity
+    /**
+     * Sets the static counter to the given value.
+     * Call this on startup with the highest existing ID from the CSV
+     * so new transactions never collide with existing ones.
+     */
+    public static void setIdCounter(int value) {
+        idCounter = value;
+    }
+
+    // --- Getters ---
+
+    public int getId() { return id; }
+    public int getUserId() { return userId; }
+    public LocalDate getDate() { return date; }
+    public String getTicker() { return ticker; }
+    public double getPrice() { return price; }
+    public String getCurrency() { return currency; }
+    public OrderType getOrderType() { return orderType; }
+    public int getQuantity() { return quantity; }
+
+    // --- Calculated ---
 
     public double getTotalValue() {
         return price * quantity;
     }
 
+    // --- CSV ---
+
     @Override
-    public String toCSVLine(){
+    public String toCSVLine() {
         return String.join(";",
                 String.valueOf(id),
                 String.valueOf(userId),
@@ -46,7 +70,8 @@ public class Transaction implements CSVSerializable {
                 String.valueOf(quantity));
     }
 
-    // TODO: add toString method
+    // --- toString ---
+
     @Override
     public String toString() {
         return String.format("[%d] %s | %s x%d @ %.2f %s on %s",

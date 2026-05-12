@@ -12,6 +12,12 @@ import java.util.List;
 
 public class CSVReader {
 
+
+    /**
+     * Generic CSV reading method
+     * @param filePath path to csv file
+     * @return String Array containing all the read elements from a csv file.
+     */
     public static List<String[]> read(String filePath) {
         // TODO: open the file at filePath
         List<String[]> rows = new ArrayList<>();
