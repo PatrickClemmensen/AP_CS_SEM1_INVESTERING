@@ -18,6 +18,7 @@ public class User implements CSVSerializable {
     private LocalDate lastUpdated;
     private double cashBalance;
     private final Portfolio portfolio;
+    private boolean portfolioLoaded = false;
 
 
 
@@ -44,6 +45,8 @@ public class User implements CSVSerializable {
     public LocalDate getLastUpdated() { return lastUpdated; }
     public double getCashBalance() { return cashBalance; }
     public Portfolio getPortfolio() { return portfolio; }
+    public boolean isPortfolioLoaded() { return portfolioLoaded; }
+    public void setPortfolioLoaded(boolean loaded) { this.portfolioLoaded = loaded; }
 
     public void deductCash(double amount) {
         // TODO: subtract amount from cashBalance

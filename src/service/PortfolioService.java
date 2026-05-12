@@ -59,6 +59,8 @@ public class PortfolioService {
     }
 
     public void loadPortfolio(User user){
+        if (user.isPortfolioLoaded()) return;
+        user.setPortfolioLoaded(true);
         List<String[]> rows = CSVReader.read(AppConstants.TRANSACTIONS_FILE);
 
         for(String[] row : rows){

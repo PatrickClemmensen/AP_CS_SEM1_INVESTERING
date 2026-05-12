@@ -100,7 +100,7 @@ public class MainMenu {
             try {
                 PasswordValidator.validatePassword(password);
                 ConsolePrinter.printConfirmation("Access granted");
-                new LeaderMenu(marketService, portfolioService).start();
+                new LeaderMenu(marketService, portfolioService, userService).start();
                 start();
                 break;
             } catch (InvalidInputException e) {

@@ -3,19 +3,26 @@ package ui.menus;
 import model.portfolio.User;
 import service.PortfolioService;
 import service.StockMarketService;
+import service.UserService;
 import ui.enums.LeaderOption;
+import util.constants.Colors;
 import util.printing.ConsolePrinter;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Scanner;
 
 public class LeaderMenu {
     private StockMarketService marketService;
     private PortfolioService portfolioService;
+    private UserService userService;
     private Scanner scanner = new Scanner(System.in);
 
-    public LeaderMenu(StockMarketService marketService, PortfolioService portfolioService) {
+    public LeaderMenu(StockMarketService marketService, PortfolioService portfolioService, UserService userService) {
         this.marketService = marketService;
         this.portfolioService = portfolioService;
+        this.userService = userService;
     }
 
     /**
@@ -59,10 +66,47 @@ public class LeaderMenu {
      */
     private void handleChoice(LeaderOption option) {
         switch (option) {
-            case OPTION_1 -> System.out.println("View all members");
-
+            case OPTION_1 -> viewAllMembers();
         }
     }
 
+    private void viewAllMembers() {
+        List<User> members = new ArrayList<>(userService.getAllUsers());
+        members.sort(Comparator.comparingInt(User::getUserId));
+
+        for (User member : members) {
+            portfolioService.loadPortfolio(member);
+        }
+
+        System.out.println();
+        ConsolePrinter.printMenuTitle("──────────────────────────────────────────── All Members ──────────────────────────────────────────");
+        System.out.printf(Colors.MENUHEADER + "%-5s %-25s %18s %18s %18s%n" + Colors.RESET,
+                "ID", "NAME", "CASH (DKK)", "HOLDINGS (DKK)", "TOTAL (DKK)");
+        ConsolePrinter.printSeparator();
+
+        for (User member : members) {
+            double cash = member.getCashBalance();
+            double holdings = member.getPortfolio().getTotalValue();
+            double total = cash + holdings;
+            System.out.printf(Colors.MENUOPTION + "%-5d %-25s %18.2f %18.2f %18.2f%n" + Colors.RESET,
+                    member.getUserId(), member.getFullName(), cash, holdings, total);
+        }
+
+        ConsolePrinter.printSeparator();
+        show();
+    }
+
+    private void viewLeaderBoard() {
+        List<User> members = new ArrayList<>(userService.getAllUsers());
+        members.sort(Comparator.comparingInt(User::getUserId));
+
+        for (User member : members) {
+            portfolioService.loadPortfolio(member);
+        }
+
+        System.out.println();
+        ConsolePrinter.printMenuTitle("──────────────────────────────────────────── All Members ──────────────────────────────────────────");
+
+    }
 
 }
