@@ -2,8 +2,6 @@ package util.printing;
 
 import util.constants.Colors;
 
-import java.awt.*;
-
 public final class ConsolePrinter {
 
     private ConsolePrinter() {
@@ -27,13 +25,11 @@ public final class ConsolePrinter {
     }
 
     public static void printMenuTitle(String message) {
-        System.out.println(Colors.SEPARATOR + message + Colors.RESET);
+        System.out.println(Colors.ANSI_BLUE + message + Colors.RESET);
     }
 
     public static void printSeparator() {
-        System.out.println(Colors.SEPARATOR + "─".repeat(100) + Colors.RESET);
+        System.out.println(Colors.ANSI_BLUE + "─".repeat(100) + Colors.RESET);
     }
-
-
 
 }
