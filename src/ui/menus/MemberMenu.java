@@ -10,6 +10,7 @@ import ui.enums.MemberOption;
 import util.AppConstants;
 import util.constants.Colors;
 import util.csv.CSVWriter;
+import util.printing.ColorFormatter;
 import util.printing.ConsolePrinter;
 
 import java.util.Scanner;
@@ -56,7 +57,7 @@ public class MemberMenu {
                 int input = Integer.parseInt(scanner.nextLine().trim());
                 MemberOption option = MemberOption.fromChoice(input);
                 if (option == MemberOption.EXIT) {
-                    ConsolePrinter.printConfirmation("Logout successful...");
+                    ConsolePrinter.printConfirmation("Logout successful!");
                     break;
                 }
                 handleChoice(option);
@@ -73,8 +74,8 @@ public class MemberMenu {
         System.out.println();
         ConsolePrinter.printMenuTitle("─────────────────────────────────────────── Club Member ───────────────────────────────────────────");
         ConsolePrinter.printMenuOption("Welcome " + user.getFullName()
-                + ", your current cash balance is " + user.getCashBalance() + " " + AppConstants.BASE_CURRENCY
-                + ", total portfolio value: " + (user.getCashBalance() + user.getPortfolio().getTotalValue()));
+                + ", your current cash balance is " + ColorFormatter.conditionalAmountColor(user.getCashBalance())
+                + Colors.MENUOPTION + ", your total value is: " + ColorFormatter.conditionalAmountColor(user.getCashBalance() + user.getPortfolio().getTotalValue()));
         ConsolePrinter.printSeparator();
         for (MemberOption option : MemberOption.values()) {
             ConsolePrinter.printMenuOption(option.getValue() + ". " + option.getLabel());
@@ -91,8 +92,14 @@ public class MemberMenu {
         }
     }
 
-    private void viewPortfolio() {
-        ConsolePrinter.printMenuHeader("\n=========================================== MY PORTFOLIO ===========================================\n");
+    private void viewPortfolio(){
+        printPortfolio();
+        show();
+    }
+
+    private void printPortfolio() {
+        System.out.println();
+        ConsolePrinter.printMenuTitle("──────────────────────────────────────────── My Portfolio ─────────────────────────────────────────");
         System.out.printf("%-10s %-29s %8s %16s %16s %16s%n", "TICKER", "NAME", "QTY", "AVG BUY", "VALUE", "POT. GAIN");
         ConsolePrinter.printSeparator();
 
@@ -102,18 +109,16 @@ public class MemberMenu {
             for (Position position : user.getPortfolio().getPositions()) {
                 ConsolePrinter.printMenuOption(position.toString());
             }
-            ConsolePrinter.printSeparator();
+            System.out.println();
+            ConsolePrinter.printMenuTitle("────────────────────────────────────────── Portfolio Summary ──────────────────────────────────────");
+            double cashBalance = user.getCashBalance();
+            double totalHoldings = user.getPortfolio().getTotalValue();
+            double totalValue = user.getCashBalance() + user.getPortfolio().getTotalValue();
             double totalGain = user.getPortfolio().getTotalGain();
-            String totalGainColored = totalGain >= 0
-                    ? Colors.ANSI_GREEN + String.format("%+12.2f DKK", totalGain) + Colors.RESET
-                    : Colors.ANSI_RED   + String.format("%12.2f DKK",  totalGain) + Colors.RESET;
+            ConsolePrinter.printMenuOption("Total Holdings: " + ColorFormatter.conditionalAmountColor(totalHoldings) + Colors.MENUOPTION + " | Total Value: " + ColorFormatter.conditionalAmountColor(totalValue) + Colors.MENUOPTION + " | Total Gain: " + ColorFormatter.conditionalAmountColor(totalGain));
+            ConsolePrinter.printMenuOption("Current Cash Balance: " + ColorFormatter.conditionalAmountColor(cashBalance) );
 
-            System.out.println(Colors.MENUOPTION + String.format("%-12s %12.2f DKK     %-10s %s",
-                    "Total Value:", user.getPortfolio().getTotalValue(),
-                    "Total Gain:", totalGainColored) + Colors.RESET);
         }
-
-        show();
     }
 
     private void buyStock() {
@@ -193,7 +198,7 @@ public class MemberMenu {
         while (true){
 
             //Shows the user's portfolio so they know what they can sell
-            viewPortfolio();
+            printPortfolio();
 
             if (user.getPortfolio().getPositions().isEmpty()) {
                 return;
