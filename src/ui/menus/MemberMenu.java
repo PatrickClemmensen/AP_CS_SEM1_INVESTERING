@@ -16,7 +16,7 @@ import util.printing.ConsolePrinter;
 import java.util.Scanner;
 
 /**
- * Menu flow for Club Members.
+ * Handles the menu flow and user interactions for a logged-in club member.
  * A Club Member can do the following:
  *       <ul>
  *           <li>View Portfolio</li>
@@ -24,7 +24,6 @@ import java.util.Scanner;
  *           <li>Sell Stock</li>
  *           <li>View Market</li>
  *       </ul>
- *
  */
 public class MemberMenu {
     private User user;
@@ -33,11 +32,11 @@ public class MemberMenu {
     private Scanner scanner = new Scanner(System.in);
 
     /**
-     * Constructor for MemberMenu object.
      * Creates a MemberMenu for the given user, backed by the provided services.
+     *
      * @param user the logged-in user
-     * @param marketService - live data from the market
-     * @param portfolioService - live data from the user's portfolio
+     * @param marketService service for accessing stock market data
+     * @param portfolioService service for loading and managing the user's portfolio
      */
     public MemberMenu(User user, StockMarketService marketService, PortfolioService portfolioService) {
         this.user = user;
@@ -48,7 +47,7 @@ public class MemberMenu {
 
     /**
      * Initiation of the menu process - displays the menu and loops until the user chooses to exit.
-     * Also contains the logic for exiting the menu.
+     * Breaks the loop and logs the user out when EXIT is chosen.
      */
     public void start() {
         show();
@@ -68,7 +67,7 @@ public class MemberMenu {
     }
 
     /**
-     * Prints the menu itself with the logged-in user's name and their current cash balance.
+     * Prints the Club Member menu with the logged-in user's name, cash balance, and total combined value.
      */
     private void show() {
         System.out.println();
@@ -83,6 +82,10 @@ public class MemberMenu {
         ConsolePrinter.printSeparator();
     }
 
+    /**
+     * Directs the user to the appropriate method based on the chosen menu option.
+     * @param option the menu option chosen by the logged-in user
+     */
     private void handleChoice(MemberOption option) {
         switch (option) {
             case OPTION_1 -> viewPortfolio();
@@ -92,11 +95,19 @@ public class MemberMenu {
         }
     }
 
+    /**
+     * Displays the portfolio view and returns the user to the MemberMenu afterwards.
+     */
     private void viewPortfolio(){
         printPortfolio();
         show();
     }
 
+    /**
+     * Displays the user's portfolio positions in a table, followed by a summary showing
+     * total holdings value, total combined value (cash + holdings), total gain, and current cash balance.
+     * Does not navigate back to the MemberMenu — used directly by {@link #viewPortfolio()} and {@link #sellStock()}.
+     */
     private void printPortfolio() {
         System.out.println();
         ConsolePrinter.printMenuTitle("──────────────────────────────────────────── My Portfolio ─────────────────────────────────────────");
