@@ -9,6 +9,7 @@ import ui.enums.MemberOption;
 import util.constants.Colors;
 import util.exception.InvalidInputException;
 import util.printing.ConsolePrinter;
+import util.validation.MenuChoiceValidator;
 import util.validation.PasswordValidator;
 
 import java.awt.*;
@@ -58,7 +59,7 @@ public class MainMenu {
         }
         ConsolePrinter.printSeparator();
 
-        int input = Integer.parseInt(scanner.nextLine());
+        int input = MenuChoiceValidator.readChoice(scanner, 0, 2,"exit the program");
         MainOption option = MainOption.fromChoice(input);
 
         switch (option) {

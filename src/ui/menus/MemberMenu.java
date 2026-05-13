@@ -12,6 +12,7 @@ import util.constants.Colors;
 import util.csv.CSVWriter;
 import util.printing.ColorFormatter;
 import util.printing.ConsolePrinter;
+import util.validation.MenuChoiceValidator;
 
 import java.util.Scanner;
 
@@ -53,7 +54,7 @@ public class MemberMenu {
         show();
         while (true) {
             try {
-                int input = Integer.parseInt(scanner.nextLine().trim());
+                int input = MenuChoiceValidator.readChoice(scanner, 0, 4, "logout");
                 MemberOption option = MemberOption.fromChoice(input);
                 if (option == MemberOption.EXIT) {
                     ConsolePrinter.printConfirmation("Logout successful!");
