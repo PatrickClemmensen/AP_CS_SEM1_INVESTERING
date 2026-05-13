@@ -20,11 +20,27 @@ public class PortfolioService {
     private StockMarketService marketService;
     // TODO: declare an int counter for generating transaction IDs
 
+    /**
+     * @param marketService the service used to find stock by ticker
+     */
     public PortfolioService(StockMarketService marketService) {
         // TODO: initialize fields
         this.marketService = marketService;
     }
 
+    /**
+     * The method finds the stock by ticker, validates that the stock exists and that the quantity is greater than zero.
+     * It then calculates the total cost of the purchase and checks whether the user has enough available cash.
+     * <p>
+     * If the purchase is valid, the total cost is deducted from the user's cash balance.
+     * The stock is then added to the user's portfolio.
+     * If the user already owns the stock, the existing position is updated with the additional quantity and purchase price.
+     * </p>
+     * @param user the user buying the stock
+     * @param ticker the ticker of the stock to buy
+     * @param quantity the amount of stocks to buy
+     * @return
+     */
     public Transaction buy(User user, String ticker, int quantity) {
         // TODO: validate ticker (TickerValidator)
         Stock stock = marketService.findByTicker(ticker);
@@ -66,6 +82,22 @@ public class PortfolioService {
         );
     }
 
+    /**
+     * Sells a given quantity of a stock from the user's portfolio.
+     * <p>
+     * The method finds the stock in the market to get the current price, then finds the user's existing position in the portfolio.
+     * If the user does not own enough of the stock, an InsufficientQuantityException is thrown.
+     * </p>
+     * <p>
+     * If the sale is valid, the user receives cash equal to the current stock price times the quantity sold.
+     * The quantity is then deducted from the portfolio position.
+     * If the position reaches 0, it is removed from the portfolio.
+     * </p>
+     * @param user the user selling the stock
+     * @param ticker the ticker of the stock to sell
+     * @param quantity the number of stocks to sell
+     * @return
+     */
     public Transaction sell(User user, String ticker, int quantity) {
         //Find the stock in the market to get the current price
         Stock stock = marketService.findByTicker(ticker);
