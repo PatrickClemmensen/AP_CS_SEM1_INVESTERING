@@ -13,12 +13,22 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Menu for the club leader. Provides exclusive access to member overview and leaderboard.
+ */
 public class LeaderMenu {
     private StockMarketService marketService;
     private PortfolioService portfolioService;
     private UserService userService;
     private Scanner scanner = new Scanner(System.in);
 
+    /**
+     * Creates a new LeaderMenu with the services needed to display member and portfolio data.
+     *
+     * @param marketService service for accessing stock market data.
+     * @param portfolioService service for loading and managing user portfolios.
+     * @param userService service for retrieving all registered members.
+     */
     public LeaderMenu(StockMarketService marketService, PortfolioService portfolioService, UserService userService) {
         this.marketService = marketService;
         this.portfolioService = portfolioService;
@@ -26,7 +36,7 @@ public class LeaderMenu {
     }
 
     /**
-     * Initiation of the menu process - displays the menu and loops until the user chooses to exit..
+     * Initiation of the menu process - displays the menu and loops until the user chooses to exit.
      * Also contains the logic for exiting the menu.
      */
     public void start() {
@@ -47,7 +57,7 @@ public class LeaderMenu {
     }
 
     /**
-     * Prints the menu itself with the logged-in user's name and their current cash balance.
+     * Prints the Club Leader menu with all available options.
      */
     private void show() {
         System.out.println();

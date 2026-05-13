@@ -35,9 +35,9 @@ public enum LeaderOption {
     }
 
     /**
-     * Returns the MemberOption whose value matches the given integer.
+     * Returns the LeaderOption whose value matches the given integer.
      * @param value the integer the user entered
-     * @return the MemberOption matching the given value
+     * @return the LeaderOption matching the given value
      * @throws IllegalArgumentException if no option matches the given value
      */
     public static LeaderOption fromChoice(int value) {

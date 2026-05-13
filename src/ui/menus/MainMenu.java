@@ -19,6 +19,9 @@ import java.util.Scanner;
 import static ui.enums.MainOption.OPTION_1;
 import static ui.enums.MainOption.OPTION_2;
 
+/**
+ * Main entry point of the UI. Handles login routing for club members and the club leader.
+ */
 public class MainMenu {
 
     private UserService userService;
@@ -26,14 +29,16 @@ public class MainMenu {
     private PortfolioService portfolioService;
 
     /**
-    *  Scanner used to read input from the console for all methods.
-    */
+     * Scanner used to read input from the console for all methods.
+     */
     Scanner scanner = new Scanner(System.in);
 
     /**
-     * @param userService is used to find users.
-     * @param marketService is used to access the stock market.
-     * @param portfolioService is used to access portfolio functionalities.
+     * Creates a new MainMenu with the services needed to handle login and navigation.
+     *
+     * @param userService service for looking up and registering users.
+     * @param marketService service for accessing stock market data.
+     * @param portfolioService service for loading and managing user portfolios.
      */
     public MainMenu(UserService userService, StockMarketService marketService,
                     PortfolioService portfolioService) {
@@ -45,8 +50,8 @@ public class MainMenu {
     /**
      * Starts the main menu.
      * <p>
-     * The methos repeatedly asks the user to enter a user ID
-     *If the written ID belongs to an existing user, the user is sent to the member menu.
+     * The method repeatedly asks the user to enter a user ID.
+     * If the written ID belongs to an existing user, the user is sent to the member menu.
      * If the ID is not found, then the user is shown the registration prompt from userNotFound() method.
      */
     public void start() {
@@ -71,6 +76,10 @@ public class MainMenu {
         }
     }
 
+    /**
+     * Directs the user to the MemberMenu when a valid ID is entered. If the ID doesn't exist it navigates the user
+     * to the <code>userNotFound()</code> where the user can choose whether to register a new user or not.
+     */
     private void sendToMemberMenu() {
         while (true) {
             System.out.println();
@@ -89,9 +98,11 @@ public class MainMenu {
                 throw new RuntimeException(e);
             }
         }
-
     }
 
+    /**
+     * Directs the user to the LeaderMenu if a valid password is entered.
+     */
     private void sendToLeaderMenu() {
         while (true) {
             ConsolePrinter.printMenuHeader("Logging is as 'Club Leader'");
@@ -120,6 +131,8 @@ public class MainMenu {
      * If "yes", the registration logic should be executed
      * If "no", the method exits the method and the user is returned to the ID prompt in the main menu.
      * Invalid input causes the method to start over and ask again.
+     * If the user chooses "yes" register, they will be sent here.
+     * The user's full name, email adress and birthdate is collected and a new user ID is generated.
      */
     private void userNotFound() {
         ConsolePrinter.printError("User not found");
@@ -132,10 +145,6 @@ public class MainMenu {
 
             String choice = scanner.nextLine().trim().toLowerCase();
 
-            /**
-             * If the user chooses "yes" register, they will be sent here.
-             * The user's full name, email adress and birth date is collected and a new user ID is generated.
-             */
             if (choice.equals("1")) {
                 //register user here
                     System.out.println();
@@ -159,16 +168,12 @@ public class MainMenu {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
                     LocalDate birthDate = LocalDate.parse(scanner.nextLine(), formatter);
 
-                /**
-                 * // Generates a new user ID by finding the highest existing ID and adding 1.
-                 */
+                // Generates a new user ID by finding the highest existing ID and adding 1.
                 int newUserId = userService.getAllUsers().stream()
                             .mapToInt(User::getUserId)
                             .max()
                             .orElse(0) + 1;
-                /**
-                 * The new user will be created with a default starting balance(100.000 DKK).
-                 */
+                // The new user is created with a default starting balance of 100.000 DKK.
                 LocalDate createdAt = LocalDate.now();
                 User newUser = new User(newUserId, fullName, email, birthDate, 100000.0, createdAt, createdAt);
 
