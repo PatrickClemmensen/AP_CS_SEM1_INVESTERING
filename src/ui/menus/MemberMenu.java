@@ -10,12 +10,14 @@ import ui.enums.MemberOption;
 import util.AppConstants;
 import util.constants.Colors;
 import util.csv.CSVWriter;
+import util.printing.ColorFormatter;
 import util.printing.ConsolePrinter;
+import util.validation.MenuChoiceValidator;
 
 import java.util.Scanner;
 
 /**
- * Menu flow for Club Members.
+ * Handles the menu flow and user interactions for a logged-in club member.
  * A Club Member can do the following:
  *       <ul>
  *           <li>View Portfolio</li>
@@ -35,8 +37,8 @@ public class MemberMenu {
      * Constructor for MemberMenu object.
      * Creates a MemberMenu for the given user, backed by the provided services.
      * @param user the logged-in user
-     * @param marketService - live data from the market
-     * @param portfolioService - live data from the user's portfolio
+     * @param marketService service for accessing stock market data
+     * @param portfolioService service for loading and managing the user's portfolio
      */
     public MemberMenu(User user, StockMarketService marketService, PortfolioService portfolioService) {
         this.user = user;
@@ -47,16 +49,16 @@ public class MemberMenu {
 
     /**
      * Initiation of the menu process - displays the menu and loops until the user chooses to exit.
-     * Also contains the logic for exiting the menu.
+     * Breaks the loop and logs the user out when EXIT is chosen.
      */
     public void start() {
         show();
         while (true) {
             try {
-                int input = Integer.parseInt(scanner.nextLine().trim());
+                int input = MenuChoiceValidator.readChoice(scanner, 0, 4, "logout");
                 MemberOption option = MemberOption.fromChoice(input);
                 if (option == MemberOption.EXIT) {
-                    ConsolePrinter.printConfirmation("Logout successful...");
+                    ConsolePrinter.printConfirmation("Logout successful!");
                     break;
                 }
                 handleChoice(option);
@@ -67,14 +69,14 @@ public class MemberMenu {
     }
 
     /**
-     * Prints the menu itself with the logged-in user's name and their current cash balance.
+     * Prints the Club Member menu with the logged-in user's name, cash balance, and total combined value.
      */
     private void show() {
         System.out.println();
         ConsolePrinter.printMenuTitle("─────────────────────────────────────────── Club Member ───────────────────────────────────────────");
         ConsolePrinter.printMenuOption("Welcome " + user.getFullName()
-                + ", your current cash balance is " + user.getCashBalance() + " " + AppConstants.BASE_CURRENCY
-                + ", total portfolio value: " + (user.getCashBalance() + user.getPortfolio().getTotalValue()));
+                + ", your current cash balance is " + ColorFormatter.conditionalAmountColor(user.getCashBalance())
+                + Colors.MENUOPTION + ", your total value is: " + ColorFormatter.conditionalAmountColor(user.getCashBalance() + user.getPortfolio().getTotalValue()));
         ConsolePrinter.printSeparator();
         for (MemberOption option : MemberOption.values()) {
             ConsolePrinter.printMenuOption(option.getValue() + ". " + option.getLabel());
@@ -82,6 +84,10 @@ public class MemberMenu {
         ConsolePrinter.printSeparator();
     }
 
+    /**
+     * Directs the user to the appropriate method based on the chosen menu option.
+     * @param option the menu option chosen by the logged-in user
+     */
     private void handleChoice(MemberOption option) {
         switch (option) {
             case OPTION_1 -> viewPortfolio();
@@ -91,9 +97,22 @@ public class MemberMenu {
         }
     }
 
+    /**
+     * Displays the portfolio view and returns the user to the MemberMenu afterwards.
+     */
+    private void viewPortfolio(){
+        printPortfolio();
+        show();
+    }
 
-    private void viewPortfolio() {
-        ConsolePrinter.printMenuHeader("\n=========================================== MY PORTFOLIO ===========================================\n");
+    /**
+     * Displays the user's portfolio positions in a table, followed by a summary showing
+     * total holdings value, total combined value (cash + holdings), total gain, and current cash balance.
+     * Does not navigate back to the MemberMenu — used directly by {@link #viewPortfolio()} and {@link #sellStock()}.
+     */
+    private void printPortfolio() {
+        System.out.println();
+        ConsolePrinter.printMenuTitle("──────────────────────────────────────────── My Portfolio ─────────────────────────────────────────");
         System.out.printf("%-10s %-29s %8s %16s %16s %16s%n", "TICKER", "NAME", "QTY", "AVG BUY", "VALUE", "POT. GAIN");
         ConsolePrinter.printSeparator();
 
@@ -103,11 +122,14 @@ public class MemberMenu {
             for (Position position : user.getPortfolio().getPositions()) {
                 ConsolePrinter.printMenuOption(position.toString());
             }
-            ConsolePrinter.printSeparator();
+            System.out.println();
+            ConsolePrinter.printMenuTitle("────────────────────────────────────────── Portfolio Summary ──────────────────────────────────────");
+            double cashBalance = user.getCashBalance();
+            double totalHoldings = user.getPortfolio().getTotalValue();
+            double totalValue = user.getCashBalance() + user.getPortfolio().getTotalValue();
             double totalGain = user.getPortfolio().getTotalGain();
-            String totalGainColored = totalGain >= 0
-                    ? Colors.ANSI_GREEN + String.format("%+12.2f DKK", totalGain) + Colors.RESET
-                    : Colors.ANSI_RED   + String.format("%12.2f DKK",  totalGain) + Colors.RESET;
+            ConsolePrinter.printMenuOption("Total Holdings: " + ColorFormatter.conditionalAmountColor(totalHoldings) + Colors.MENUOPTION + " | Total Value: " + ColorFormatter.conditionalAmountColor(totalValue) + Colors.MENUOPTION + " | Total Gain: " + ColorFormatter.conditionalAmountColor(totalGain));
+            ConsolePrinter.printMenuOption("Current Cash Balance: " + ColorFormatter.conditionalAmountColor(cashBalance) );
 
             System.out.println(Colors.MENUOPTION + String.format("%-12s %12.2f DKK     %-10s %s",
                     "Total Value:", user.getPortfolio().getTotalValue(),
@@ -116,7 +138,19 @@ public class MemberMenu {
 
         show();
     }
-
+    /**
+     * Handles the flow for when a user wants to buy a stock.
+     * <p>
+     * The method shows the market, asks the user to enter a ticker and quantity for the wanted stock, shows a trade summary, and asks for confirmation before completing the purchase.
+     * </p>
+     *      * The user can cancel the purchase by pressing 0 when asked for a ticker.
+     * If the user confirms the purchase, the method calls {@link PortfolioService#buy(User, String, int)} to perform the actual buying logic
+     * The {@link Transaction} is then saved to the transactions csv file.
+     * </p>
+     * Invalid tickers, invalid quantities, insufficient funds or other buy errors are handled by displaying an error message.
+     * The user is also given the option to buy another stock.
+     * When the flow is done the user is sent back to see the club member menu.
+     */
     private void buyStock() {
         while (true) {
             marketService.viewMarket();
@@ -196,11 +230,28 @@ public class MemberMenu {
     }
     // TODO: call portfolioService.buy() and handle any exceptions
 
+    /**
+     * Handles the flow for when a user wants to buy a stock.
+     * <p>
+     * The method show the user's portfolio, asks the user to enter a ticker and quantity for the stock they want to sell,
+     * shows a trade summary, and asks for confirmation before completing the sale.
+     * </p>
+     * <p>
+     * The user can cansel the sale by pressing 0 when asked for a ticker.
+     * If the user confirms the sale, the method calls {@link PortfolioService#sell(User, String, int)} to perform the actual selling logic.
+     * The {@link Transaction} is then saved to the transactions csv file.
+     * </p>
+     * <p>
+     * Invalid tickers, invalid quantities, insufficient stock quantity, or other sale errors are handled by displaying an error message.
+     * The user is also given the option to sell another stock.
+     * When the flow is done, the user is sent back to the club member menu.
+     * </p>
+     */
     private void sellStock() {
         while (true){
 
             //Shows the user's portfolio so they know what they can sell
-            viewPortfolio();
+            printPortfolio();
 
             if (user.getPortfolio().getPositions().isEmpty()) {
                 return;

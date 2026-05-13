@@ -7,6 +7,7 @@ import service.UserService;
 import ui.enums.LeaderOption;
 import util.constants.Colors;
 import util.printing.ConsolePrinter;
+import util.validation.MenuChoiceValidator;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -33,7 +34,7 @@ public class LeaderMenu {
         show();
         while (true) {
             try {
-                int input = Integer.parseInt(scanner.nextLine().trim());
+                int input = MenuChoiceValidator.readChoice(scanner, 0, 2,"logout");
                 LeaderOption option = LeaderOption.fromChoice(input);
                 if (option == LeaderOption.EXIT) {
                     ConsolePrinter.printConfirmation("Logout succesful!");
