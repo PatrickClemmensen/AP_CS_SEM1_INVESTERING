@@ -9,6 +9,7 @@ import ui.enums.MemberOption;
 import util.constants.Colors;
 import util.exception.InvalidInputException;
 import util.printing.ConsolePrinter;
+import util.validation.MenuChoiceValidator;
 import util.validation.PasswordValidator;
 
 import java.awt.*;
@@ -58,7 +59,7 @@ public class MainMenu {
         }
         ConsolePrinter.printSeparator();
 
-        int input = Integer.parseInt(scanner.nextLine());
+        int input = MenuChoiceValidator.readChoice(scanner, 0, 2,"exit the program");
         MainOption option = MainOption.fromChoice(input);
 
         switch (option) {
@@ -132,12 +133,10 @@ public class MainMenu {
 
             String choice = scanner.nextLine().trim().toLowerCase();
 
-            /**
-             * If the user chooses "yes" register, they will be sent here.
-             * The user's full name, email adress and birth date is collected and a new user ID is generated.
-             */
+            // If the user chooses "yes" register, they will be sent here.
+            // The user's full name, email adress and birth date is collected and a new user ID is generated.
             if (choice.equals("1")) {
-                //register user here
+                    // register user here
                     System.out.println();
                     ConsolePrinter.printMenuTitle("──────────────────────────────────────── Register New User ────────────────────────────────────────");
                     ConsolePrinter.printMenuHeader("Thank you for your interest in Investeringsklubben! You're about to register as a new user and need" +
@@ -159,16 +158,14 @@ public class MainMenu {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
                     LocalDate birthDate = LocalDate.parse(scanner.nextLine(), formatter);
 
-                /**
-                 * // Generates a new user ID by finding the highest existing ID and adding 1.
-                 */
+
+                 // Generates a new user ID by finding the highest existing ID and adding 1.
                 int newUserId = userService.getAllUsers().stream()
                             .mapToInt(User::getUserId)
                             .max()
                             .orElse(0) + 1;
-                /**
-                 * The new user will be created with a default starting balance(100.000 DKK).
-                 */
+
+                // The new user will be created with a default starting balance(100.000 DKK).
                 LocalDate createdAt = LocalDate.now();
                 User newUser = new User(newUserId, fullName, email, birthDate, 100000.0, createdAt, createdAt);
 
