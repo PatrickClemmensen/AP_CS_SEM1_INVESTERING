@@ -115,7 +115,19 @@ public class MemberMenu {
 
         show();
     }
-
+    /**
+     * Handles the flow for when a user wants to buy a stock.
+     * <p>
+     * The method shows the market, asks the user to enter a ticker and quantity for the wanted stock, shows a trade summary, and asks for confirmation before completing the purchase.
+     * </p>
+     *      * The user can cancel the purchase by pressing 0 when asked for a ticker.
+     * If the user confirms the purchase, the method calls {@link PortfolioService#buy(User, String, int)} to perform the actual buying logic
+     * The {@link Transaction} is then saved to the transactions csv file.
+     * </p>
+     * Invalid tickers, invalid quantities, insufficient funds or other buy errors are handled by displaying an error message.
+     * The user is also given the option to buy another stock.
+     * When the flow is done the user is sent back to see the club member menu.
+     */
     private void buyStock() {
         while (true) {
             marketService.viewMarket();
@@ -189,6 +201,23 @@ public class MemberMenu {
     }
     // TODO: call portfolioService.buy() and handle any exceptions
 
+    /**
+     * Handles the flow for when a user wants to buy a stock.
+     * <p>
+     * The method show the user's portfolio, asks the user to enter a ticker and quantity for the stock they want to sell,
+     * shows a trade summary, and asks for confirmation before completing the sale.
+     * </p>
+     * <p>
+     * The user can cansel the sale by pressing 0 when asked for a ticker.
+     * If the user confirms the sale, the method calls {@link PortfolioService#sell(User, String, int)} to perform the actual selling logic.
+     * The {@link Transaction} is then saved to the transactions csv file.
+     * </p>
+     * <p>
+     * Invalid tickers, invalid quantities, insufficient stock quantity, or other sale errors are handled by displaying an error message.
+     * The user is also given the option to sell another stock.
+     * When the flow is done, the user is sent back to the club member menu.
+     * </p>
+     */
     private void sellStock() {
         while (true){
 
