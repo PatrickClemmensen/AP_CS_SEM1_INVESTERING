@@ -91,6 +91,7 @@ public class MemberMenu {
         }
     }
 
+
     private void viewPortfolio() {
         ConsolePrinter.printMenuHeader("\n=========================================== MY PORTFOLIO ===========================================\n");
         System.out.printf("%-10s %-29s %8s %16s %16s %16s%n", "TICKER", "NAME", "QTY", "AVG BUY", "VALUE", "POT. GAIN");
@@ -143,6 +144,12 @@ public class MemberMenu {
                 quantity = Integer.parseInt(scanner.nextLine().trim());
             } catch (NumberFormatException e) {
                 ConsolePrinter.printError("Invalid quantity. Please try again.");
+                continue;
+            }
+
+            // --- quantity validation before summary ---
+            if (quantity <= 0){
+                ConsolePrinter.printError("Quantity must be greater than 0.");
                 continue;
             }
 
