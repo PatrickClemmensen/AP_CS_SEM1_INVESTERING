@@ -38,9 +38,9 @@ public class PortfolioService {
         // TODO: calculate total cost: stock.getPrice() * quantity
         double totalCost = stock.getPrice()*quantity;
         // TODO: validate cash balance (CashBalanceValidator)
-        double availableCash = user.getCashBalance() - user.getPortfolio().getTotalValue();
-        if(availableCash < totalCost){
-            throw new IllegalArgumentException("Insufficient funds. Required: " + totalCost + " Available: " + availableCash);
+        if(user.getCashBalance() < totalCost) {
+            double shortfall = totalCost - user.getCashBalance();
+            throw new InsufficientFundsException("Insufficient funds. Required: " + totalCost + " DKK | Available: " + shortfall + " DKK");
         }
         // TODO: deduct total cost from user cash (user.deductCash())
         user.deductCash(totalCost);
