@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import util.csv.CSVWriter;
 
 /**
  * Service responsible for loading and querying user data
@@ -18,6 +19,7 @@ import java.util.Map;
 public class UserService {
     // TODO: declare a Map to store users by userId
     private final Map<Integer, User> userMap = new HashMap<>();
+    private final String usersFilePath;
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
@@ -28,6 +30,7 @@ public class UserService {
      */
     public UserService(String usersFilePath) {
         // TODO: call a private load() method
+        this.usersFilePath = usersFilePath;
         load(usersFilePath);
     }
 
@@ -85,6 +88,7 @@ public class UserService {
 
     public void addUser(User user){
         userMap.put(user.getUserId(),user);
+        CSVWriter.append(usersFilePath, user);
     }
 
 }
