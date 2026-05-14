@@ -7,8 +7,9 @@ public enum MemberOption {
 
     OPTION_1(1, "View portfolio"),
     OPTION_2(2, "Buy stock"),
-    OPTION_3(3, "Sell Stock"),
-    OPTION_4(4, "View Market"),
+    OPTION_3(3, "Sell stock"),
+    OPTION_4(4, "View market"),
+    OPTION_5(5, "View transaction history"),
     EXIT(0, "Logout");
 
     private final int value;

@@ -14,6 +14,8 @@ import util.printing.ColorFormatter;
 import util.printing.ConsolePrinter;
 import util.validation.MenuChoiceValidator;
 
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -54,10 +56,11 @@ public class MemberMenu {
         show();
         while (true) {
             try {
-                int input = MenuChoiceValidator.readChoice(scanner, 0, 4, "logout");
+                int input = MenuChoiceValidator.readChoice(scanner, 0, 5, "logout");
                 MemberOption option = MemberOption.fromChoice(input);
                 if (option == MemberOption.EXIT) {
                     ConsolePrinter.printConfirmation("Logout successful!");
+                    show();
                     break;
                 }
                 handleChoice(option);
@@ -93,6 +96,7 @@ public class MemberMenu {
             case OPTION_2 -> buyStock();
             case OPTION_3 -> sellStock();
             case OPTION_4 -> viewMarket();
+            case OPTION_5 -> viewTransactions();
         }
     }
 
@@ -305,7 +309,8 @@ public class MemberMenu {
 
             // --- delegate to PortfolioService ---
             try {
-                portfolioService.sell(user, ticker, quantity);
+                Transaction transaction = portfolioService.sell(user, ticker, quantity);
+                CSVWriter.append(AppConstants.TRANSACTIONS_FILE, transaction);
                 ConsolePrinter.printConfirmation("Sale complete!");
             } catch (Exception e) {
                 ConsolePrinter.printError(e.getMessage());
@@ -323,6 +328,40 @@ public class MemberMenu {
 
     private void viewMarket() {
         marketService.viewMarket();
+        show();
+    }
+
+    /**
+     * Displays the logged-in user's full transaction history sorted newest first.
+     * <p>
+     *     Retrieves all transactions via {@link PortfolioService#getTransactionHistory(User)} and
+     *     prints them in a formatted 100-character wide table showing date, order type (BUY/SELL),
+     *     ticker, quantity, and price per share in DKK.
+     *     If the user has no transactions, an informational message is shown instead.
+     * </p>
+     * <p>
+     *     Returns the user to the Club Member menu when done.
+     * </p>
+     */
+    private void viewTransactions() {
+        System.out.println();
+        ConsolePrinter.printMenuTitle("──────────────────────────────────────── Transaction History ───────────────────────────────────────");
+        List<Transaction> history = portfolioService.getTransactionHistory(user);
+        if (history.isEmpty()) {
+            ConsolePrinter.printError("No transactions found.");
+        } else {
+            System.out.printf("%-12s %-8s %-46s %10s %20s%n", "DATE", "TYPE", "TICKER", "QTY", "PRICE/SHARE (DKK)");
+            ConsolePrinter.printSeparator();
+            for (Transaction t : history) {
+                ConsolePrinter.printMenuOption(String.format("%-12s %-8s %-46s %10d %20.2f",
+                        t.getDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")),
+                        t.getOrderType(),
+                        t.getTicker(),
+                        t.getQuantity(),
+                        t.getPrice()
+                ));
+            }
+        }
         show();
     }
 }
