@@ -5,6 +5,8 @@ public enum LeaderOption {
 
     OPTION_1(1, "View all members"),
     OPTION_2(2, "View leaderboard"),
+    OPTION_3(3, "View stock distribution"),
+    OPTION_4(4, "View sector distribution"),
     EXIT(0, "Logout");
 
     private final int value;
