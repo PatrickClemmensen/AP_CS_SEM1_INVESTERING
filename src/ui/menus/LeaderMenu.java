@@ -8,6 +8,7 @@ import service.PortfolioService;
 import service.StockMarketService;
 import service.UserService;
 import ui.enums.LeaderOption;
+import util.comparator.ByPercentReturn;
 import util.constants.Colors;
 import util.printing.ConsolePrinter;
 import util.validation.MenuChoiceValidator;
@@ -115,23 +116,34 @@ public class LeaderMenu {
             portfolioService.loadPortfolio(member);
         }
 
-        System.out.println();
-        ConsolePrinter.printMenuTitle("─────────────────────────────────────────── Leaderboard ───────────────────────────────────────────");
-        System.out.printf(Colors.MENUHEADER + "%-5s %-25s %9s%n" + Colors.RESET,
-                "RANK", "NAME", "TOTAL WEALTH (DKK)");
+        // --- sort selection ---
+        ConsolePrinter.printMenuHeader("Sort leaderboard by:");
+        ConsolePrinter.printMenuOption("1. Total value (DKK)");
+        ConsolePrinter.printMenuOption("2. Percentage return");
         ConsolePrinter.printSeparator();
 
-        int[] rank = {1};
-        members.stream()
-                .sorted(Comparator.comparingDouble(
-                                (User u) -> u.getCashBalance() + u.getPortfolio().getTotalValue())
-                        .reversed())
-                .limit(10)
-                .forEach(member -> {
-                    double total = member.getCashBalance() + member.getPortfolio().getTotalValue();
-                    System.out.printf(Colors.MENUOPTION + "%-5d %-25s %9.2f%n" + Colors.RESET,
-                            rank[0]++, member.getFullName(), total);
-                });
+        int choice = MenuChoiceValidator.readChoice(scanner, 1, 2, "cancel");
+
+        if (choice == 1) {
+            Collections.sort(members);           // Comparable — total value descending
+        } else {
+            members.sort(new ByPercentReturn()); // Comparator<Rankable> — percent return descending
+        }
+
+        // --- display ---
+        System.out.println();
+        ConsolePrinter.printMenuTitle("─────────────────────────────────────────── Leaderboard ───────────────────────────────────────────");
+        System.out.printf(Colors.MENUHEADER + "%-5s %-25s %20s %20s%n" + Colors.RESET,
+                "RANK", "NAME", "TOTAL VALUE (DKK)", "RETURN (%)");
+        ConsolePrinter.printSeparator();
+
+        int rank = 1;
+        for (User member : members) {
+            double total     = member.getRankValue();
+            double returnPct = ((total - member.getInitialCash()) / member.getInitialCash()) * 100;
+            System.out.printf(Colors.MENUOPTION + "%-5d %-25s %20.2f %19.2f%%%n" + Colors.RESET,
+                    rank++, member.getFullName(), total, returnPct);
+        }
 
         ConsolePrinter.printSeparator();
         show();

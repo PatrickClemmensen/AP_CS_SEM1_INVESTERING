@@ -19,7 +19,7 @@ import util.constants.Colors;
  * @see Portfolio
  * @see Asset
  */
-public class Position implements Rankable, CSVSerializable {
+public class Position implements Rankable, CSVSerializable, Comparable<Position> {
     // TODO: declare fields (asset, quantity, averageBuyPrice)
     // Note: averageBuyPrice should NOT be final — it updates on each additional purchase
     private final Asset asset;
@@ -141,5 +141,10 @@ public class Position implements Rankable, CSVSerializable {
         return String.format("%-10s %-29s %8d %16.2f %16.2f %s",
                 asset.getTicker(), asset.getName(), quantity,
                 averageBuyPrice, asset.getPrice(), gainColored);
+    }
+
+    @Override
+    public int compareTo(Position other) {
+        return Double.compare(other.getRankValue(), this.getRankValue()); // descending — best return first
     }
 }

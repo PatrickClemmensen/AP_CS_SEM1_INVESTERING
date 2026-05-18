@@ -1,6 +1,7 @@
 package model.portfolio;
 
 import interfaces.CSVSerializable;
+import interfaces.Rankable;
 import util.printing.ConsolePrinter;
 
 import java.time.LocalDate;
@@ -17,7 +18,7 @@ import java.util.Scanner;
  *
  * @see Portfolio
  */
-public class User implements CSVSerializable {
+public class User implements CSVSerializable, Comparable<User>, Rankable {
     // TODO: declare fields based on users.csv
     // Hint: userId, fullName, email, birthDate, cashBalance, portfolio, createdAt, lastUpdated
     private final int userId;
@@ -27,6 +28,7 @@ public class User implements CSVSerializable {
     private final LocalDate createdAt;
     private LocalDate lastUpdated;
     private double cashBalance;
+    private double initialCash;
     private final Portfolio portfolio;
     private boolean portfolioLoaded = false;
 
@@ -54,6 +56,7 @@ public class User implements CSVSerializable {
         this.email = email;
         this.birthDate = birthDate;
         this.cashBalance = initialCash;
+        this.initialCash = initialCash;
         this.createdAt = createdAt;
         this.lastUpdated = lastUpdated;
         this.portfolio = new Portfolio();
@@ -74,7 +77,7 @@ public class User implements CSVSerializable {
     public double getCash(){
         return cashBalance;
     }
-
+    public double getInitialCash() { return initialCash; }
 
     /**
      * Deducts the given amount from the user's cash balance.
@@ -138,5 +141,15 @@ public class User implements CSVSerializable {
                 String.valueOf(cashBalance),
                 createdAt.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")),
                 lastUpdated.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+    }
+
+    @Override
+    public int compareTo(User other) {
+        return Double.compare(other.getRankValue(), this.getRankValue()); // descending — highest value first
+    }
+
+    @Override
+    public double getRankValue() {
+        return cashBalance + portfolio.getTotalValue();
     }
 }
