@@ -2,6 +2,7 @@ package model.portfolio;
 
 import interfaces.CSVSerializable;
 import interfaces.Rankable;
+import interfaces.Tradeable;
 import model.asset.Asset;
 import util.constants.Colors;
 
@@ -22,7 +23,7 @@ import util.constants.Colors;
 public class Position implements Rankable, CSVSerializable, Comparable<Position> {
     // TODO: declare fields (asset, quantity, averageBuyPrice)
     // Note: averageBuyPrice should NOT be final — it updates on each additional purchase
-    private final Asset asset;
+    private final Tradeable asset;
     private int quantity;
     private double averageBuyPrice;
 
@@ -34,7 +35,7 @@ public class Position implements Rankable, CSVSerializable, Comparable<Position>
      * @param quantity          the number of shares initially purchased
      * @param averageBuyPrice   the price per share paid at the time of purchase, in DKK
      */
-    public Position(Asset asset, int quantity, double averageBuyPrice) {
+    public Position(Tradeable asset, int quantity, double averageBuyPrice) {
         // TODO: initialize fields
         this.asset = asset;
         this.quantity = quantity;
@@ -42,7 +43,7 @@ public class Position implements Rankable, CSVSerializable, Comparable<Position>
     }
 
     // TODO: add getters for asset, quantity, averageBuyPrice
-    public Asset getAsset() { return asset; }
+    public Tradeable getAsset() { return asset; }
     public int getQuantity() { return quantity; }
     public double getAverageBuyPrice() { return averageBuyPrice; }
 
@@ -133,13 +134,14 @@ public class Position implements Rankable, CSVSerializable, Comparable<Position>
      */
     @Override
     public String toString() {
+        String name = (asset instanceof Asset a) ? a.getName() : asset.getTicker();
         double gain = getUnrealizedGain();
         String gainColored = gain >= 0
                 ? Colors.ANSI_GREEN + String.format("%+12.2f", gain) + Colors.RESET
                 : Colors.ANSI_RED   + String.format("%12.2f",  gain) + Colors.RESET;
 
         return String.format("%-10s %-29s %8d %16.2f %16.2f %s",
-                asset.getTicker(), asset.getName(), quantity,
+                asset.getTicker(), name, quantity,
                 averageBuyPrice, asset.getPrice(), gainColored);
     }
 

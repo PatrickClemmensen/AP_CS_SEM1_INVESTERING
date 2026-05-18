@@ -1,5 +1,6 @@
 package ui.menus;
 
+import interfaces.Tradeable;
 import model.asset.Stock;
 import model.asset.Asset;
 import model.portfolio.Position;
@@ -224,7 +225,7 @@ public class LeaderMenu {
         Map<String, Double> valueBySector = new LinkedHashMap<>();
         for (User member : members) {
             for (Position position : member.getPortfolio().getPositions()) {
-                Asset asset = position.getAsset();
+                Tradeable asset = position.getAsset();
                 String sector = (asset instanceof Stock)
                         ? ((Stock) asset).getSector()
                         : "Unknown";

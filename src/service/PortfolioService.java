@@ -1,5 +1,6 @@
 package service;
 
+import interfaces.Tradeable;
 import model.asset.Stock;
 import model.portfolio.Portfolio;
 import model.portfolio.Position;
@@ -44,35 +45,33 @@ public class PortfolioService {
      * If the user already owns the stock, the existing position is updated with the additional quantity and purchase price.
      * </p>
      * @param user the user buying the stock
-     * @param ticker the ticker of the stock to buy
+     * @param asset the asset object to buy
      * @param quantity the amount of stocks to buy
      * @return
      */
-    public Transaction buy(User user, String ticker, int quantity) {
-        TickerValidator.validate(ticker, marketService);
-        Stock stock = marketService.findByTicker(ticker);
-
+    public Transaction buy(User user, Tradeable asset, int quantity) {
+        // no longer need to look up by ticker — asset is passed in directly
         QuantityValidator.validate(quantity);
 
-        double totalCost = stock.getPrice()*quantity;
+        double totalCost = asset.getPrice() * quantity;
 
         CashBalanceValidator.validate(user, totalCost);
 
         user.deductCash(totalCost);
 
-        Position existing = user.getPortfolio().findByTicker(ticker);
-        if (existing != null){
-            existing.increaseQuantity(quantity, stock.getPrice());
+        Position existing = user.getPortfolio().findByTicker(asset.getTicker());
+        if (existing != null) {
+            existing.increaseQuantity(quantity, asset.getPrice());
         } else {
-            user.getPortfolio().addPosition(new Position(stock,quantity,stock.getPrice()));
+            user.getPortfolio().addPosition(new Position(asset, quantity, asset.getPrice()));
         }
 
         return new Transaction(
                 user.getUserId(),
                 LocalDate.now(),
-                ticker,
-                stock.getPrice(),
-                stock.getCurrency(),
+                asset.getTicker(),
+                asset.getPrice(),
+                asset.getCurrency(),
                 OrderType.BUY,
                 quantity
         );
