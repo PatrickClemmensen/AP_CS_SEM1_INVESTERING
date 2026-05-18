@@ -18,8 +18,6 @@ import java.util.Scanner;
  * @see Portfolio
  */
 public class User implements CSVSerializable {
-    // TODO: declare fields based on users.csv
-    // Hint: userId, fullName, email, birthDate, cashBalance, portfolio, createdAt, lastUpdated
     private final int userId;
     private final String fullName;
     private final String email;
@@ -47,8 +45,6 @@ public class User implements CSVSerializable {
      */
     public User(int userId, String fullName, String email,
                 LocalDate birthDate, double initialCash, LocalDate createdAt, LocalDate lastUpdated) {
-        // TODO: initialize fields
-        // Hint: create a new Portfolio() here
         this.userId = userId;
         this.fullName = fullName;
         this.email = email;
@@ -59,7 +55,6 @@ public class User implements CSVSerializable {
         this.portfolio = new Portfolio();
     }
 
-    // TODO: add getters
     public int getUserId() {return userId;}
     public String getFullName() { return fullName; }
     public String getEmail() { return email; }
@@ -86,7 +81,6 @@ public class User implements CSVSerializable {
      * @param amount the amount to deduct in DKK
      */
     public void deductCash(double amount) {
-        // TODO: subtract amount from cashBalance
         cashBalance -= amount;
     }
 
@@ -99,7 +93,6 @@ public class User implements CSVSerializable {
      * @param amount the amount to add in DKK
      */
     public void addCash(double amount) {
-        // TODO: add amount to cashBalance
         cashBalance += amount;
     }
 
@@ -114,7 +107,6 @@ public class User implements CSVSerializable {
      */
     @Override
     public String toString() {
-        // TODO: return a readable summary, e.g. "[1] Maria Jensen | Cash: 100000.00 DKK"
         return String.format("[%d] %s | Cash: %.2f DKK", userId, fullName, cashBalance);
     }
 

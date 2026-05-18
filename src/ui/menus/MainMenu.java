@@ -72,6 +72,14 @@ public class MainMenu {
         }
     }
 
+    /**
+     * Handles the login flow for the club member.
+     * <p>
+     *     Prompts the user to enter their ID and looks them up via {@link UserService}.
+     *     If found, the user is sent to the{@link MemberMenu}.
+     *     If not found, the registration prompt is shown via {@link #userNotFound()}.
+     * </p>
+     */
     private void sendToMemberMenu() {
         while (true) {
             System.out.println();
@@ -93,6 +101,14 @@ public class MainMenu {
 
     }
 
+    /**
+     * Handles the login flow for the club Leader.
+     * <p>
+     *     Prompts the leader password and validates it via {@link PasswordValidator}.
+     *     If the password is correct, the leader is sent to the {@link LeaderMenu}.
+     *     If incorrect, an error is displayed and the application returns to the main menu.
+     * </p>
+     */
     private void sendToLeaderMenu() {
         while (true) {
             ConsolePrinter.printMenuHeader("Logging is as 'Club Leader'");
@@ -133,10 +149,7 @@ public class MainMenu {
 
             String choice = scanner.nextLine().trim().toLowerCase();
 
-            // If the user chooses "yes" register, they will be sent here.
-            // The user's full name, email adress and birth date is collected and a new user ID is generated.
             if (choice.equals("1")) {
-                    // register user here
                     System.out.println();
                     ConsolePrinter.printMenuTitle("──────────────────────────────────────── Register New User ────────────────────────────────────────");
                     ConsolePrinter.printMenuHeader("Thank you for your interest in Investeringsklubben! You're about to register as a new user and need" +
@@ -158,14 +171,11 @@ public class MainMenu {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
                     LocalDate birthDate = LocalDate.parse(scanner.nextLine(), formatter);
 
-
-                 // Generates a new user ID by finding the highest existing ID and adding 1.
                 int newUserId = userService.getAllUsers().stream()
                             .mapToInt(User::getUserId)
                             .max()
                             .orElse(0) + 1;
 
-                // The new user will be created with a default starting balance(100.000 DKK).
                 LocalDate createdAt = LocalDate.now();
                 User newUser = new User(newUserId, fullName, email, birthDate, 100000.0, createdAt, createdAt);
 

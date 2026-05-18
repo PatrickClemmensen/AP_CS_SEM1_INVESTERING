@@ -20,7 +20,6 @@ import java.util.Map;
  * </p>
  */
 public class StockMarketService {
-    // TODO: declare a Map to store stocks by ticker
     private final Map<String, Stock> stockMap = new HashMap<>();
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("dd-MM-yyyy");
@@ -31,7 +30,6 @@ public class StockMarketService {
      * @param stockFilePath the path to the CSV file containing stock market data.
      */
     public StockMarketService(String stockFilePath) {
-        // TODO: call a private load() method
         load(stockFilePath);
     }
 
@@ -47,9 +45,7 @@ public class StockMarketService {
      * @param path the file path to the CSV file to load
      */
     private void load(String path) {
-        // TODO: use CSVReader to read stockMarket.csv
         for(String[] row : CSVReader.read(path)){
-        // TODO: parse each row into a Stock object
             String ticker = row[0].trim();
             String name = row[1].trim();
             String sector = row[2].trim();
@@ -60,13 +56,10 @@ public class StockMarketService {
             String market = row[7].trim();
             LocalDate lastUpdated = LocalDate.parse(row[8].trim(), FORMATTER);
 
-            // TODO: put each Stock into the map using its ticker as key
             Stock stock = new Stock(ticker, name, sector, price, currency, rating, dividendYield, market, lastUpdated);
             stockMap.put(ticker, stock);
         }
 
-
-        // Hint: row order is ticker;name;sector;price;currency;rating;dividend_yield;market;last_updated
     }
 
     /**
@@ -78,7 +71,6 @@ public class StockMarketService {
      * @return the matching {@link Stock}, or {@code null} if no stock with that ticker exists
      */
     public Stock findByTicker(String ticker) {
-        // TODO: return the Stock for the given ticker, or null if not found
         return stockMap.get(ticker.toUpperCase());
     }
 
@@ -88,7 +80,6 @@ public class StockMarketService {
      * @return a {@link Collection} of all {@link Stock} objects; never {@code null}
      */
     public Collection<Stock> getAllStocks() {
-        // TODO: return all stocks in the map
         return stockMap.values();
     }
 

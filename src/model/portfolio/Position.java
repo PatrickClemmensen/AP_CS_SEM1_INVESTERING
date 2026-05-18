@@ -20,12 +20,9 @@ import util.constants.Colors;
  * @see Asset
  */
 public class Position implements Rankable, CSVSerializable {
-    // TODO: declare fields (asset, quantity, averageBuyPrice)
-    // Note: averageBuyPrice should NOT be final — it updates on each additional purchase
     private final Asset asset;
     private int quantity;
     private double averageBuyPrice;
-
 
     /**
      * Constructs a new {@code postition} for the given asset.
@@ -35,13 +32,11 @@ public class Position implements Rankable, CSVSerializable {
      * @param averageBuyPrice   the price per share paid at the time of purchase, in DKK
      */
     public Position(Asset asset, int quantity, double averageBuyPrice) {
-        // TODO: initialize fields
         this.asset = asset;
         this.quantity = quantity;
         this.averageBuyPrice = averageBuyPrice;
     }
 
-    // TODO: add getters for asset, quantity, averageBuyPrice
     public Asset getAsset() { return asset; }
     public int getQuantity() { return quantity; }
     public double getAverageBuyPrice() { return averageBuyPrice; }

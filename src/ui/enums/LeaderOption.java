@@ -1,8 +1,11 @@
 package ui.enums;
 
 
+/**
+ * Represents the selectable options in the Club Leader menu,
+ * each with a numeric value and display label.
+ */
 public enum LeaderOption {
-
     OPTION_1(1, "View all members"),
     OPTION_2(2, "View leaderboard"),
     OPTION_3(3, "View stock distribution"),

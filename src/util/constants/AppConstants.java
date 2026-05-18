@@ -1,6 +1,14 @@
 // src/util/AppConstants.java
 package util;
 
+/**
+ * Central store for application-wide constans.
+ * <p>
+ *     Contains file paths, CSV formatting rules, currency settings,
+ *     and authentication credentials used throughout the application.
+ *     This class cannot be instantiated.
+ * </p>
+ */
 public class AppConstants {
     private AppConstants() {} // prevent instantiation
 

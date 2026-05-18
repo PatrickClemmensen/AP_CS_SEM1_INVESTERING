@@ -1,7 +1,8 @@
 package ui.enums;
 
 /**
- * Represents the selectable options in the Member menu, each with a numeric value and a display label.
+ * Represents the selectable options in the Member menu,
+ * each with a numeric value and a display label.
  */
 public enum MemberOption {
 
