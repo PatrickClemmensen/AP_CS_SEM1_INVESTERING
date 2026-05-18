@@ -175,6 +175,12 @@ public class MemberMenu {
                 continue;
             }
 
+            // --- quantity validation before summary ---
+            if (quantity <= 0){
+                ConsolePrinter.printError("Quantity must be greater than 0.");
+                continue;
+            }
+
             // --- trade summary ---
             double pricePerStock = stock.getPrice();
             double totalCost = pricePerStock * quantity;
