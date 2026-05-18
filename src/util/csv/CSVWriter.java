@@ -46,14 +46,12 @@ public class CSVWriter {
      * @param filePath CSV file path to write to
      * @param item List of CSVSerializable items to write to CSV
      */
-    public static void append(String filePath, CSVSerializable item){
-        // TODO: open the file in append mode and write item.toCSVLine()
-        // TODO: handle IOException
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))){
-            writer.write(item.toCSVLine());
+    public static void append(String filePath, CSVSerializable item) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
             writer.newLine();
-        }catch(IOException e){
-            ConsolePrinter.printError("Error writing to file" + e.getMessage());
+            writer.write(item.toCSVLine());
+        } catch (IOException e) {
+            ConsolePrinter.printError("Error appending to file: " + e.getMessage());
         }
     }
 
