@@ -12,8 +12,15 @@ import util.csv.CSVReader;
 import util.exception.InsufficientFundsException;
 import util.exception.InsufficientQuantityException;
 
+import javax.swing.plaf.basic.BasicDesktopIconUI;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+
+import static util.AppConstants.TRANSACTIONS_FILE;
 
 public class PortfolioService {
     // TODO: declare a reference to StockMarketService
@@ -163,7 +170,7 @@ public class PortfolioService {
     public void loadPortfolio(User user) {
         if (user.getPortfolio().isLoaded()) return;
 
-        List<String[]> rows = CSVReader.read(AppConstants.TRANSACTIONS_FILE);
+        List<String[]> rows = CSVReader.read(TRANSACTIONS_FILE);
 
         for (String[] row : rows) {
             int userId = Integer.parseInt(row[1]);
@@ -199,6 +206,41 @@ public class PortfolioService {
         }
 
         user.getPortfolio().setLoaded(true);
+    }
+
+    /**
+     * Returns a complete list of all transactions made by the given user, sorted newest first.
+     * <p>
+     *     Reads all rows from the transactions CSV, filters on {@code userId}, and parses each
+     *     matching row into a {@link Transaction} object. The list is reversed after loading so
+     *     the most recently appended transaction appears first.
+     * </p>
+     *
+     * @param user the user whose transaction history is requested
+     * @return a {@link List} of {@link Transaction} objects sorted newest first;
+     *         never {@code null}, may be empty if the user has made no trades
+     */
+    public List<Transaction> getTransactionHistory(User user) {
+        List<String[]> rows = CSVReader.read(TRANSACTIONS_FILE);
+        List<Transaction> history = new ArrayList<>();
+
+        for (String[] row : rows) {
+            int userId = Integer.parseInt(row[1]);
+            if (userId != user.getUserId()) continue;
+
+            LocalDate date = LocalDate.parse(row[2], DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+            String ticker = row[3];
+            double price = Double.parseDouble(row[4].replace(",", "."));
+            String currency = row[5];
+            OrderType orderType = OrderType.fromString(row[6]);
+            int quantity = Integer.parseInt(row[7]);
+
+            history.add(new Transaction(user.getUserId(), date, ticker, price, currency, orderType, quantity));
+
+        }
+        Collections.reverse(history);
+        return history;
+
     }
 
 }
