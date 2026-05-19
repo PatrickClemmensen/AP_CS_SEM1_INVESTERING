@@ -135,11 +135,29 @@ public class User implements CSVSerializable, Rankable, Comparable<User> {
                 lastUpdated.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
     }
 
+    /**
+     * Compares this user to another by total wealth (cash + holdings), in descending order.
+     * <p>
+     *     Used when sorting the leaderboard so that the wealthiest member appears first.
+     * </p>
+     *
+     * @param other the user to compare against
+     * @return a negative integer if this user has greater total wealth than {@code other},
+     *         zero if equal, or a positive integer if this user has less total wealth
+     */
     @Override
     public int compareTo(User other) {
         return Double.compare(other.getRankValue(), this.getRankValue()); // descending — highest value first
     }
 
+    /**
+     * Returns the total wealth of this user (cash balance + current portfolio value), in DKK.
+     * <p>
+     *     Used as the ranking value for the leaderboard when sorting by total value.
+     * </p>
+     *
+     * @return total wealth in DKK
+     */
     @Override
     public double getRankValue() {
         return cashBalance + portfolio.getTotalValue();

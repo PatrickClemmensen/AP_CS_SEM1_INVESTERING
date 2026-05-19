@@ -16,12 +16,32 @@ import util.validation.MenuChoiceValidator;
 
 import java.util.*;
 
+/**
+ * Handles the menu flow and user interactions for a logged-in club leader.
+ * <p>
+ *     A club leader has exclusive access to the following features:
+ *     <ul>
+ *         <li>View all members with their cash, holdings, and total wealth</li>
+ *         <li>View the member leaderboard sorted by total value or percentage return</li>
+ *         <li>View the club's stock distribution across individual tickers</li>
+ *         <li>View the club's sector distribution across all holdings</li>
+ *         <li>Search for members by name</li>
+ *     </ul>
+ * </p>
+ */
 public class LeaderMenu {
     private StockMarketService marketService;
     private PortfolioService portfolioService;
     private UserService userService;
     private Scanner scanner = new Scanner(System.in);
 
+    /**
+     * Creates a {@code LeaderMenu} backed by the provided services.
+     *
+     * @param marketService    service for accessing stock market data
+     * @param portfolioService service for loading and querying member portfolios
+     * @param userService      service for accessing and searching user accounts
+     */
     public LeaderMenu(StockMarketService marketService, PortfolioService portfolioService, UserService userService) {
         this.marketService = marketService;
         this.portfolioService = portfolioService;

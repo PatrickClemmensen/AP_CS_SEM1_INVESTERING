@@ -23,6 +23,14 @@ import java.util.Scanner;
 import static ui.enums.MainOption.OPTION_1;
 import static ui.enums.MainOption.OPTION_2;
 
+/**
+ * The top-level menu of the Investeringsklubben application.
+ * <p>
+ *     Presents login options for club members and the club leader,
+ *     and handles new member registration when an unknown user ID is entered.
+ *     Routes authenticated users to either {@link MemberMenu} or {@link LeaderMenu}.
+ * </p>
+ */
 public class MainMenu {
 
     private UserService userService;
@@ -35,6 +43,8 @@ public class MainMenu {
     Scanner scanner = new Scanner(System.in);
 
     /**
+     * Creates a {@code MainMenu} backed by the provided services.
+     *
      * @param userService is used to find users.
      * @param marketService is used to access the stock market.
      * @param portfolioService is used to access portfolio functionalities.

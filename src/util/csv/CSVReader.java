@@ -10,6 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * Utility class for reading semicolon-delimited CSV files.
+ * <p>
+ *     Uses a {@link BufferedReader} for efficient file access.
+ *     The first line of every file is treated as a header and skipped automatically.
+ *     Blank lines are also ignored.
+ *     This class cannot be instantiated — all methods are static.
+ * </p>
+ */
 public class CSVReader {
 
 

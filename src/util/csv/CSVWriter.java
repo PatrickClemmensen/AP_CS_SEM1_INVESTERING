@@ -5,6 +5,14 @@ import util.printing.ConsolePrinter;
 import java.io.*;
 import java.util.List;
 
+/**
+ * Utility class for writing {@link interfaces.CSVSerializable} objects to CSV files.
+ * <p>
+ *     Supports both full overwrites (with a header row) and appending individual records
+ *     to an existing file. Uses a {@link BufferedWriter} for efficient I/O.
+ *     This class cannot be instantiated — all methods are static.
+ * </p>
+ */
 public class CSVWriter {
 
 
