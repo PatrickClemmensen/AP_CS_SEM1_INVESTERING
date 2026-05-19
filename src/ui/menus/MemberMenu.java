@@ -359,6 +359,21 @@ public class MemberMenu {
         }
         show();
     }
+
+
+    /**
+     * Handles the search stock flow.
+     * <p>
+     *     Prompts the user to enter a search term and passes it to
+     *     {@link StockMarketService#searchStocks(String)}, which matches against
+     *     ticker symbol, company name, and sector. The results are displayed
+     *     in a formatted market table. If no matches are found, am error message
+     *     is shown instead.
+     *
+     *     Returns the user to the menu whe done.
+     * </p>
+     *
+     */
     private void searchStocks(){
         ConsolePrinter.printMenuOption("Search by ticker, navn or sector: ");
         String searchInput = scanner.nextLine();

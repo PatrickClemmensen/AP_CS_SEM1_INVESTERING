@@ -2,6 +2,14 @@ package util.printing;
 
 import util.constants.Colors;
 
+/**
+ * Utility class for printing ANSI-colored messages to the console.
+ *
+ * <p>
+ *     Provides static methods for consistent formatting of errors, confirmations,
+ *     menu headers, options, and separators throughout the application.
+ * </p>
+ */
 public final class ConsolePrinter {
 
     private ConsolePrinter() {

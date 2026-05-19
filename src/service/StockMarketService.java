@@ -82,6 +82,18 @@ public class StockMarketService {
         return stockMap.values();
     }
 
+    /**
+     * Searches the stock market for stocks matching the given input.
+     * <p>
+     *     The search is case-insensitive against ticker symbol,
+     *     company name and sector. A Stock is included in the results if any
+     *     of these fields contain the search input as a substring.
+     * </p>
+     *
+     * @param searchInput the search string entered by the user
+     * @return a {@link Collection} of {@link Stock} objects matching the search input;
+     *          never a {@code null}, may be empty if no matches are found
+     */
     public Collection<Stock> searchStocks(String searchInput) {
         String search = searchInput.trim().toLowerCase();
 
@@ -108,6 +120,16 @@ public class StockMarketService {
     public void viewMarket() {
         viewMarket(stockMap.values());
     }
+
+    /**
+     * Prints a formatted table of the given stocks to the console.
+     * <p>
+     *     Used to display either the full market or a filtered subset of stocks,
+     *     such as search results. Each stock row is formatted using {@link Stock#toString()}.
+     * </p>
+     *
+     * @param stocks the collection of stocks to display
+     */
     public void viewMarket(Collection<Stock> stocks){
         ConsolePrinter.printMenuTitle("──────────────────────────────────────────── Stock Market ─────────────────────────────────────────");
         System.out.printf("%-10s %-40s %-22s %16s %8s%n", "TICKER", "NAME", "SECTOR", "PRICE", "CURR");
