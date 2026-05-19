@@ -18,7 +18,7 @@ import java.util.Scanner;
  *
  * @see Portfolio
  */
-public class User implements CSVSerializable {
+public class User implements CSVSerializable, Rankable, Comparable<User> {
     private final int userId;
     private final String fullName;
     private final String email;

@@ -20,7 +20,7 @@ import util.constants.Colors;
  * @see Portfolio
  * @see Asset
  */
-public class Position implements Rankable, CSVSerializable {
+public class Position implements Rankable, CSVSerializable, Comparable<Position> {
     private final Asset asset;
     private int quantity;
     private double averageBuyPrice;

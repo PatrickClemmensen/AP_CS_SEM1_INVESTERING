@@ -174,28 +174,26 @@ public class MainMenu {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
                     LocalDate birthDate = LocalDate.parse(scanner.nextLine(), formatter);
 
+                System.out.println();
+                ConsolePrinter.printMenuTitle("────────────────────────────────── Register New User ─ Step 4/4 ──────────────────────────────────");
+                ConsolePrinter.printMenuOption("Please, enter your initial investment (minimum 10.000 DKK): ");
+                double initialCash = 0;
+                while (true) {
+                    try {
+                        initialCash = Double.parseDouble(scanner.nextLine().trim().replace(",", "."));
+                        InitialInvestmentValidator.validate(initialCash);
+                        break;
+                    } catch (NumberFormatException e) {
+                        ConsolePrinter.printError("Please enter a valid number.");
+                    } catch (InvalidInputException e) {
+                        ConsolePrinter.printError(e.getMessage());
+                    }
+                }
+
                 int newUserId = userService.getAllUsers().stream()
                             .mapToInt(User::getUserId)
                             .max()
                             .orElse(0) + 1;
 
                 LocalDate createdAt = LocalDate.now();
-                User newUser = new User(newUserId, fullName, email, birthDate, initialCash, createdAt, createdAt);
-
-                userService.addUser(newUser);
-                System.out.println();
-                ConsolePrinter.printMenuTitle("─────────────────────────────────────── Registration Complete ─────────────────────────────────────");
-                ConsolePrinter.printConfirmation("Registration complete!");
-                ConsolePrinter.printMenuOption("Your unique user ID is " + Colors.ANSI_BLUE + newUserId + Colors.MENUOPTION + " and will be used to log in to your account from now on." +
-                        "\nWelcome to Investeringsklubben! ٩(◕‿◕)۶" + Colors.RESET);
-                CSVWriter.append(AppConstants.USERS_FILE,newUser);
-
-                start();
-                break;
-            } else if (choice.equals("2")) {
-                start();
-                break;
-            }
-        }
-    }
-}
+                User newUser = new User(newUserId, ful
