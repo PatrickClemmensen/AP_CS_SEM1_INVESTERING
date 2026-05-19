@@ -11,6 +11,7 @@ public enum MemberOption {
     OPTION_3(3, "Sell stock"),
     OPTION_4(4, "View market"),
     OPTION_5(5, "View transaction history"),
+    OPTION_6(6, "Search for stocks"),
     EXIT(0, "Logout");
 
     private final int value;
