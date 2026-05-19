@@ -6,9 +6,12 @@ import service.StockMarketService;
 import service.UserService;
 import ui.enums.MainOption;
 import ui.enums.MemberOption;
+import util.AppConstants;
 import util.constants.Colors;
+import util.csv.CSVWriter;
 import util.exception.InvalidInputException;
 import util.printing.ConsolePrinter;
+import util.validation.InitialInvestmentValidator;
 import util.validation.MenuChoiceValidator;
 import util.validation.PasswordValidator;
 
@@ -156,17 +159,17 @@ public class MainMenu {
                             "\nto answer a few questions in order to get access to the platform and start investing.");
 
                     System.out.println();
-                    ConsolePrinter.printMenuTitle("────────────────────────────────── Register New User ─ Step 1/3 ──────────────────────────────────");
+                    ConsolePrinter.printMenuTitle("────────────────────────────────── Register New User ─ Step 1/4 ──────────────────────────────────");
                     ConsolePrinter.printMenuOption("Please, enter your full name: ");
                     String fullName = scanner.nextLine();
 
                     System.out.println();
-                ConsolePrinter.printMenuTitle("────────────────────────────────── Register New User ─ Step 2/3 ──────────────────────────────────");
+                ConsolePrinter.printMenuTitle("────────────────────────────────── Register New User ─ Step 2/4 ──────────────────────────────────");
                     ConsolePrinter.printMenuOption("Please, enter your e-mail address: ");
                     String email = scanner.nextLine();
 
                     System.out.println();
-                ConsolePrinter.printMenuTitle("────────────────────────────────── Register New User ─ Step 3/3 ──────────────────────────────────");
+                ConsolePrinter.printMenuTitle("────────────────────────────────── Register New User ─ Step 3/4 ──────────────────────────────────");
                     ConsolePrinter.printMenuOption("Please, enter your birthday (using this format: dd-mm-yyyy): ");
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
                     LocalDate birthDate = LocalDate.parse(scanner.nextLine(), formatter);
@@ -177,7 +180,7 @@ public class MainMenu {
                             .orElse(0) + 1;
 
                 LocalDate createdAt = LocalDate.now();
-                User newUser = new User(newUserId, fullName, email, birthDate, 100000.0, createdAt, createdAt);
+                User newUser = new User(newUserId, fullName, email, birthDate, initialCash, createdAt, createdAt);
 
                 userService.addUser(newUser);
                 System.out.println();
@@ -185,6 +188,8 @@ public class MainMenu {
                 ConsolePrinter.printConfirmation("Registration complete!");
                 ConsolePrinter.printMenuOption("Your unique user ID is " + Colors.ANSI_BLUE + newUserId + Colors.MENUOPTION + " and will be used to log in to your account from now on." +
                         "\nWelcome to Investeringsklubben! ٩(◕‿◕)۶" + Colors.RESET);
+                CSVWriter.append(AppConstants.USERS_FILE,newUser);
+
                 start();
                 break;
             } else if (choice.equals("2")) {

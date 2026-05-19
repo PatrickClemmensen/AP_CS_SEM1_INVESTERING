@@ -2,6 +2,7 @@ package model.portfolio;
 
 import interfaces.CSVSerializable;
 import interfaces.Rankable;
+import interfaces.Tradeable;
 import model.asset.Asset;
 import util.constants.Colors;
 
@@ -128,13 +129,19 @@ public class Position implements Rankable, CSVSerializable {
      */
     @Override
     public String toString() {
+        String name = (asset instanceof Asset a) ? a.getName() : asset.getTicker();
         double gain = getUnrealizedGain();
         String gainColored = gain >= 0
                 ? Colors.ANSI_GREEN + String.format("%+12.2f", gain) + Colors.RESET
                 : Colors.ANSI_RED   + String.format("%12.2f",  gain) + Colors.RESET;
 
         return String.format("%-10s %-29s %8d %16.2f %16.2f %s",
-                asset.getTicker(), asset.getName(), quantity,
+                asset.getTicker(), name, quantity,
                 averageBuyPrice, asset.getPrice(), gainColored);
+    }
+
+    @Override
+    public int compareTo(Position other) {
+        return Double.compare(other.getRankValue(), this.getRankValue()); // descending — best return first
     }
 }

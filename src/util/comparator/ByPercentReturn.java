@@ -1,11 +1,17 @@
 package util.comparator;
 
 import interfaces.Rankable;
+import model.portfolio.User;
+
 import java.util.Comparator;
 
 /**
- * Compares two {@link Rankable} objects by their percentage return in descending order,
- * so the highest return appears first in a sorted list.
+ * Sorts any {@link Rankable} by its rank value in descending order.
+ * <p>
+ *     Works across both {@link model.portfolio.Position} (sorts by percentage return)
+ *     and {@link model.portfolio.User} (sorts by total portfolio value),
+ *     since both implement {@link Rankable#getRankValue()}.
+ * </p>
  */
 public class ByPercentReturn implements Comparator<Rankable> {
 

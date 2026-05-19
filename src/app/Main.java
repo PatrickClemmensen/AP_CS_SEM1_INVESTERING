@@ -12,15 +12,15 @@ import java.io.File;
 
 public class Main {
     public static void main(String[] args) {
-        FileReadBenchmark.run(AppConstants.STOCK_MARKET_FILE, 1000);
-        FileReadBenchmark.run(AppConstants.USERS_FILE, 1000);
-        FileReadBenchmark.run(AppConstants.TRANSACTIONS_FILE, 1000);
+        //FileReadBenchmark.run(AppConstants.STOCK_MARKET_FILE, 1000);
+        //FileReadBenchmark.run(AppConstants.USERS_FILE, 1000);
+        //FileReadBenchmark.run(AppConstants.TRANSACTIONS_FILE, 1000);
 
         UserService userService = new UserService(AppConstants.USERS_FILE);
         StockMarketService marketService = new StockMarketService(AppConstants.STOCK_MARKET_FILE);
         PortfolioService portfolioService = new PortfolioService(marketService);
 
-        //new MainMenu(userService, marketService,portfolioService).start();
+        new MainMenu(userService, marketService,portfolioService).start();
 
     }
 }

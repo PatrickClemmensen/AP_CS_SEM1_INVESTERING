@@ -142,7 +142,6 @@ public class MemberMenu {
      * The method shows the market, asks the user to enter a ticker and quantity for the wanted stock, shows a trade summary, and asks for confirmation before completing the purchase.
      * </p>
      *      * The user can cancel the purchase by pressing 0 when asked for a ticker.
-     * If the user confirms the purchase, the method calls {@link PortfolioService#buy(User, String, int)} to perform the actual buying logic
      * The {@link Transaction} is then saved to the transactions csv file.
      * </p>
      * Invalid tickers, invalid quantities, insufficient funds or other buy errors are handled by displaying an error message.
@@ -204,7 +203,7 @@ public class MemberMenu {
             }
 
             try {
-                Transaction transaction = portfolioService.buy(user, ticker, quantity);
+                Transaction transaction = portfolioService.buy(user, stock, quantity);
                 CSVWriter.append(AppConstants.TRANSACTIONS_FILE, transaction);
                 ConsolePrinter.printConfirmation("Purchase completed!");
             } catch (Exception e) {
