@@ -174,6 +174,22 @@ public class MainMenu {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
                     LocalDate birthDate = LocalDate.parse(scanner.nextLine(), formatter);
 
+                System.out.println();
+                ConsolePrinter.printMenuTitle("────────────────────────────────── Register New User ─ Step 4/4 ──────────────────────────────────");
+                ConsolePrinter.printMenuOption("Please, enter your initial investment (minimum 10.000 DKK): ");
+                double initialCash = 0;
+                while (true) {
+                    try {
+                        initialCash = Double.parseDouble(scanner.nextLine().trim().replace(",", "."));
+                        InitialInvestmentValidator.validate(initialCash);
+                        break;
+                    } catch (NumberFormatException e) {
+                        ConsolePrinter.printError("Please enter a valid number.");
+                    } catch (InvalidInputException e) {
+                        ConsolePrinter.printError(e.getMessage());
+                    }
+                }
+
                 int newUserId = userService.getAllUsers().stream()
                             .mapToInt(User::getUserId)
                             .max()

@@ -2,6 +2,7 @@ package service;
 
 import interfaces.Tradeable;
 import model.asset.Stock;
+import model.asset.Asset;
 import model.portfolio.Portfolio;
 import model.portfolio.Position;
 import model.portfolio.User;
@@ -76,7 +77,7 @@ public class PortfolioService {
         if (existing != null) {
             existing.increaseQuantity(quantity, asset.getPrice());
         } else {
-            user.getPortfolio().addPosition(new Position(asset, quantity, asset.getPrice()));
+            user.getPortfolio().addPosition(new Position((Asset)asset, quantity, asset.getPrice()));
         }
 
         return new Transaction(

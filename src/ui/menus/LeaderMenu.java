@@ -225,7 +225,7 @@ public class LeaderMenu {
         Map<String, Double> valueBySector = new LinkedHashMap<>();
         for (User member : members) {
             for (Position position : member.getPortfolio().getPositions()) {
-                Tradeable asset = position.getAsset();
+                Asset asset = position.getAsset();
                 String sector = (asset instanceof Stock)
                         ? ((Stock) asset).getSector()
                         : "Unknown";
