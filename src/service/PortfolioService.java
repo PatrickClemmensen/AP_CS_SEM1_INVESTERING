@@ -26,10 +26,20 @@ import java.util.List;
 
 import static util.AppConstants.TRANSACTIONS_FILE;
 
+/**
+ * Service class responsible for managing user portfolios and stock transactions.
+ * <p>
+ *     Handles buying and selling of stocks, loading portfolios from persistent
+ *     storage, and retrieving transaction history. All operations are validated
+ *     before execution using the appropriate validator classes.
+ * </p>
+ */
 public class PortfolioService {
     private StockMarketService marketService;
 
     /**
+     * Constructs a new {@code PortfolioService} backed by the given market service.
+     *
      * @param marketService the service used to find stock by ticker
      */
     public PortfolioService(StockMarketService marketService) {
@@ -47,7 +57,10 @@ public class PortfolioService {
      * @param user the user buying the stock
      * @param asset the asset object to buy
      * @param quantity the amount of stocks to buy
-     * @return
+     * @return a {@link Transaction} record of the purchase
+     * @throws util.exception.InvalidAssetException         if the ticker does not exist in the market
+     * @throws IllegalArgumentException                     if the quantity is zero or negative
+     * @throws util.exception.InsufficientFundsException    if the user cannot afford the purchase
      */
     public Transaction buy(User user, Tradeable asset, int quantity) {
         // no longer need to look up by ticker — asset is passed in directly
@@ -78,50 +91,41 @@ public class PortfolioService {
     }
 
     /**
-     * Sells a given quantity of a stock from the user's portfolio.
+     * Executes a stock for the given user.
      * <p>
-     * The method finds the stock in the market to get the current price, then finds the user's existing position in the portfolio.
-     * If the user does not own enough of the stock, an InsufficientQuantityException is thrown.
+     *     Validates the ticker and quantity before proceeding. The user must own
+     *     sufficient shares of the stock to complete the sale. The proceeds are
+     *     credited to the user's cash balance, and the position is reduced accordingly.
+     *     If all shares are sold, the position is removed from the portfolio entirely.
      * </p>
-     * <p>
-     * If the sale is valid, the user receives cash equal to the current stock price times the quantity sold.
-     * The quantity is then deducted from the portfolio position.
-     * If the position reaches 0, it is removed from the portfolio.
-     * </p>
-     * @param user the user selling the stock
-     * @param ticker the ticker of the stock to sell
-     * @param quantity the number of stocks to sell
-     * @return
+     * @param user      the user selling the stock
+     * @param ticker    the ticker of the stock to sell
+     * @param quantity  the number of stocks to sell
+     * @return a {@link Transaction} record of the sale
+     * @throws util.exception.InvalidAssetException         if the ticker does not exist in the market
+     * @throws IllegalArgumentException                     if the quantity is zero or negative
+     * @throws util.exception.InsufficientQuantityException if the user does not own enough shares
      */
         public Transaction sell(User user, String ticker, int quantity) {
             TickerValidator.validate(ticker, marketService);
             QuantityValidator.validate(quantity);
 
             Stock stock = marketService.findByTicker(ticker);
-
             Portfolio portfolio = user.getPortfolio();
             Position position = portfolio.findByTicker(ticker);
 
-            //Safety check
             if (position == null || position.getQuantity() < quantity) {
                 throw new InsufficientQuantityException("Insufficient quantity for ticker " + ticker);
             }
 
-            //Calculate how much cash the user receives from the sale
             double totalValue = stock.getPrice() * quantity;
-
-            //Credit the cash to the user's balance
             user.addCash(totalValue);
-
-            //Reduce the position by the sold quantity
             position.decreaseQuantity(quantity);
 
-            //If they sold everything, remove the position from the portfolio entirely
             if (position.getQuantity() == 0) {
                 portfolio.removePosition(position);
             }
 
-            //Build and return the transaction record
             return new Transaction(
                     user.getUserId(),
                     LocalDate.now(),

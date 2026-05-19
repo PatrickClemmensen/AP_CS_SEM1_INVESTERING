@@ -152,7 +152,6 @@ public class MemberMenu {
         while (true) {
             marketService.viewMarket();
 
-            // --- ticker input ---
             ConsolePrinter.printMenuOption("Please enter ticker:    |   Or press 0 to cancel");
             String ticker = scanner.nextLine().trim().toUpperCase();
 
@@ -168,7 +167,6 @@ public class MemberMenu {
                 continue;
             }
 
-            // --- quantity input ---
             ConsolePrinter.printMenuOption("Enter quantity for " + stock.getTicker() + ":");
             int quantity;
             try {
@@ -178,13 +176,11 @@ public class MemberMenu {
                 continue;
             }
 
-            // --- quantity validation before summary ---
             if (quantity <= 0){
                 ConsolePrinter.printError("Quantity must be greater than 0.");
                 continue;
             }
 
-            // --- trade summary ---
             double pricePerStock = stock.getPrice();
             double totalCost = pricePerStock * quantity;
             double balanceAfterPurchase = user.getCashBalance() - totalCost;
@@ -198,7 +194,6 @@ public class MemberMenu {
             System.out.printf("Balance after purchase: %.2f DKK%n", balanceAfterPurchase);
             ConsolePrinter.printSeparator();
 
-            // --- confirmation ---
             ConsolePrinter.printMenuOption("Confirm purchase? (y / n):");
             String confirmation = scanner.nextLine().trim().toLowerCase();
 
@@ -207,7 +202,6 @@ public class MemberMenu {
                 continue;
             }
 
-            // --- delegate to PortfolioService ---
             try {
                 Transaction transaction = portfolioService.buy(user, stock, quantity);
                 CSVWriter.append(AppConstants.TRANSACTIONS_FILE, transaction);
@@ -217,7 +211,6 @@ public class MemberMenu {
                 continue;
             }
 
-            // --- buy another? ---
             ConsolePrinter.printMenuOption("Buy another stock? (y / n):");
             if (!scanner.nextLine().trim().toLowerCase().equals("y")) {
                 start();
@@ -225,7 +218,6 @@ public class MemberMenu {
             }
         }
     }
-    // TODO: call portfolioService.buy() and handle any exceptions
 
     /**
      * Handles the flow for when a user wants to buy a stock.
@@ -234,7 +226,7 @@ public class MemberMenu {
      * shows a trade summary, and asks for confirmation before completing the sale.
      * </p>
      * <p>
-     * The user can cansel the sale by pressing 0 when asked for a ticker.
+     * The user can cancel the sale by pressing 0 when asked for a ticker.
      * If the user confirms the sale, the method calls {@link PortfolioService#sell(User, String, int)} to perform the actual selling logic.
      * The {@link Transaction} is then saved to the transactions csv file.
      * </p>
@@ -247,14 +239,12 @@ public class MemberMenu {
     private void sellStock() {
         while (true){
 
-            //Shows the user's portfolio so they know what they can sell
             printPortfolio();
 
             if (user.getPortfolio().getPositions().isEmpty()) {
                 return;
             }
 
-            // --- ticker input ---
             Position position = null;
             String ticker = "";
 
@@ -274,7 +264,6 @@ public class MemberMenu {
                 }
             }
 
-            // --- quantity input ---
             ConsolePrinter.printMenuOption("Enter quantity:");
             int quantity;
             try {
@@ -289,7 +278,6 @@ public class MemberMenu {
                 continue;
             }
 
-            // --- order summary ---
             double unitPrice = position.getAsset().getPrice();
             double totalProceeds = unitPrice * quantity;
             double projectedCash = user.getCashBalance() + totalProceeds;
@@ -303,7 +291,6 @@ public class MemberMenu {
             ConsolePrinter.printMenuOption("Cash After Sale: " + projectedCash + " DKK");
             ConsolePrinter.printSeparator();
 
-            // --- confirmation ---
             ConsolePrinter.printMenuOption("Confirm sale? (y / n):");
             String confirm = scanner.nextLine().trim().toLowerCase();
 
@@ -312,7 +299,6 @@ public class MemberMenu {
                 continue;
             }
 
-            // --- delegate to PortfolioService ---
             try {
                 Transaction transaction = portfolioService.sell(user, ticker, quantity);
                 CSVWriter.append(AppConstants.TRANSACTIONS_FILE, transaction);
@@ -322,7 +308,6 @@ public class MemberMenu {
                 continue;
             }
 
-            // --- sell another? ---
             ConsolePrinter.printMenuOption("Sell another stock? (y / n):");
             if (!scanner.nextLine().trim().toLowerCase().equals("y")) {
                 show();
@@ -331,6 +316,9 @@ public class MemberMenu {
         }
     }
 
+    /**
+     * Displays the current stock market and returns the user to the member menu after wards.
+     */
     private void viewMarket() {
         marketService.viewMarket();
         show();

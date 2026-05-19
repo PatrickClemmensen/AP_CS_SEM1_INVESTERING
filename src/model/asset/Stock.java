@@ -15,11 +15,9 @@ import java.time.format.DateTimeFormatter;
  * </p>
  */
 public class Stock extends Asset implements Tradeable, CSVSerializable {
-    // TODO: declare fields specific to stocks (sector, dividendYield)
     private String sector;
     private double dividendYield;
 
-    // Hint: look at stockMarket.csv column headers
 
     /**
      * Constructs a new {@code Stock} with the given market data.
@@ -38,7 +36,6 @@ public class Stock extends Asset implements Tradeable, CSVSerializable {
                  String currency, String rating, double dividendYield,
                  String market, LocalDate lastUpdated) {
         super(ticker, name, price, currency, rating, market, lastUpdated);
-        // TODO: initialize Stock-specific fields
         this.sector = sector;
         this.dividendYield = validateDividendYield(dividendYield);
     }
@@ -55,7 +52,6 @@ public class Stock extends Asset implements Tradeable, CSVSerializable {
      */
     @Override
     public String toCSVLine() {
-        // TODO: return semicolon-delimited string matching stockMarket.csv column order
         return String.join(";",
                 getTicker(),
                 getName(),
@@ -68,6 +64,13 @@ public class Stock extends Asset implements Tradeable, CSVSerializable {
                 getLastUpdated().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
     }
 
+    /**
+     * Validates that the given dividend yield is not negative.
+     *
+     * @param dividendYield the dividend yield to validate
+     * @return the dividend yield if valid
+     * @throws IllegalArgumentException id the dividend yield is negative
+     */
     public double validateDividendYield(double dividendYield){
         if (dividendYield < 0) {
             throw new IllegalArgumentException("Dividend Yield must be positive: " + dividendYield);
@@ -76,7 +79,6 @@ public class Stock extends Asset implements Tradeable, CSVSerializable {
 
     }
 
-    // TODO: add getters for sector and dividendYield
 
     public String getSector(){
         return sector;

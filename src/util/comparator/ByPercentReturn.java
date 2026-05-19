@@ -15,16 +15,16 @@ import java.util.Comparator;
  */
 public class ByPercentReturn implements Comparator<Rankable> {
 
+    /**
+     * Compares two {@link Rankable} objects by their rank value in descending order.
+     *
+     * @param a the first object to be compared.
+     * @param b the second object to be compared.
+     * @return a negative integer if {@code b} has a lower rank value than {@code a},
+     * zero if equal, or a positive integer if {@code b} has a higher rank value
+     */
     @Override
     public int compare(Rankable a, Rankable b) {
-        return Double.compare(getReturn(b), getReturn(a)); // descending
-    }
-
-    private double getReturn(Rankable rankable) {
-        if (rankable instanceof User user) {
-            return ((user.getRankValue() - user.getInitialCash()) / user.getInitialCash()) * 100;
-        }
-        // for Position, getRankValue() already returns percent return
-        return rankable.getRankValue();
+        return 0;
     }
 }
