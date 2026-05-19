@@ -12,6 +12,15 @@ import java.util.Comparator;
  */
 public class ByTickerName implements Comparator<Position> {
 
+
+    /**
+     * Compares two {@link Position} objects alphabetically by ticker symbol.
+     *
+     * @param a the first object to be compared.
+     * @param b the second object to be compared.
+     * @return a negative integer if {@code a} comes before {@code b} alphabetically,
+     *          zero if equal, or a positive integer if {@code a} comes after {@code b}
+     */
     @Override
     public int compare(Position a, Position b) {
         return a.getAsset().getTicker().compareTo(b.getAsset().getTicker());

@@ -34,12 +34,7 @@ public class CSVWriter {
             }
         }
 
-        // TODO: open the file for writing (respect the append flag)
-        // TODO: if not appending, write the header line first
-        // TODO: call toCSVLine() on each item and write it as a line
-        // TODO: handle IOException
     }
-
 
     /**
      * Appends a list to a CSV file
@@ -54,5 +49,4 @@ public class CSVWriter {
             ConsolePrinter.printError("Error appending to file: " + e.getMessage());
         }
     }
-
 }
