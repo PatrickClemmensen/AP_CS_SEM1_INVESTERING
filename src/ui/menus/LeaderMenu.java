@@ -36,7 +36,7 @@ public class LeaderMenu {
         show();
         while (true) {
             try {
-                int input = MenuChoiceValidator.readChoice(scanner, 0, 4,"logout");
+                int input = MenuChoiceValidator.readChoice(scanner, 0, 5,"logout");
                 LeaderOption option = LeaderOption.fromChoice(input);
                 if (option == LeaderOption.EXIT) {
                     ConsolePrinter.printConfirmation("Logout succesful!");
@@ -73,6 +73,7 @@ public class LeaderMenu {
             case OPTION_2 -> viewLeaderboard();
             case OPTION_3 -> viewStockDistribution();
             case OPTION_4 -> viewSectorDistribution();
+            case OPTION_5 -> searchMembers();
         }
     }
 
@@ -266,5 +267,47 @@ public class LeaderMenu {
                 "TOTAL", totalInvested, "100.00%");
         ConsolePrinter.printSeparator();
         show();
+    }
+
+    /**
+     * Allows the leader to search for members by full name.
+     */
+    private void searchMembers(){
+        ConsolePrinter.printMenuOption("Search for member by name: ");
+        String searchInput = scanner.nextLine();
+
+        Collection<User> results = userService.searchMembers(searchInput);
+
+        if (results.isEmpty()){
+            ConsolePrinter.printError("No member found.");
+        } else {
+            printMembers(results);
+        }
+        show();
+    }
+
+    /**
+     * Prints a table with the given member(s), which was searched for
+     * @param members the members to print
+     */
+    private void printMembers(Collection<User> members) { //Method to help print members from search
+        System.out.println();
+        ConsolePrinter.printMenuTitle("──────────────────────────────────────────── Members ──────────────────────────────────────────────");
+        System.out.printf(Colors.MENUHEADER + "%-5s %-25s %18s %18s %18s%n" + Colors.RESET,
+                "ID", "NAME", "CASH (DKK)", "HOLDINGS (DKK)", "TOTAL (DKK)");
+        ConsolePrinter.printSeparator();
+
+        for (User member : members) {
+            portfolioService.loadPortfolio(member);
+
+            double cash = member.getCashBalance();
+            double holdings = member.getPortfolio().getTotalValue();
+            double total = cash + holdings;
+
+            System.out.printf(Colors.MENUOPTION + "%-5d %-25s %18.2f %18.2f %18.2f%n" + Colors.RESET,
+                    member.getUserId(), member.getFullName(), cash, holdings, total);
+        }
+
+        ConsolePrinter.printSeparator();
     }
 }

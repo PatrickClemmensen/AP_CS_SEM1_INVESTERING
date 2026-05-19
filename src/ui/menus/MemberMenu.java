@@ -360,7 +360,7 @@ public class MemberMenu {
         show();
     }
     private void searchStocks(){
-        ConsolePrinter.printMenuOption("Search by ticker, navn or sector: ");
+        ConsolePrinter.printMenuOption("Search by ticker, name or sector: ");
         String searchInput = scanner.nextLine();
         Collection<Stock> results = marketService.searchStocks(searchInput);
 

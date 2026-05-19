@@ -4,6 +4,7 @@ import model.portfolio.User;
 import util.csv.CSVReader;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -72,6 +73,25 @@ public class UserService {
      */
     public Collection<User> getAllUsers() {
         return userMap.values();
+    }
+
+    /**
+     * Search for members by full name
+     *
+     * @param searchInput the name to search for
+     * @return a collection of members that match the search
+     * returns an empty collection if no members match
+     */
+    public Collection<User> searchMembers(String searchInput){
+        String search = searchInput.trim().toLowerCase();
+        Collection<User> results = new ArrayList<>();
+
+        for (User user : userMap.values()){
+            if(user.getFullName().toLowerCase().contains(search)){
+                results.add(user);
+            }
+        }
+        return results;
     }
 
     /**
