@@ -196,4 +196,22 @@ public class MainMenu {
                             .orElse(0) + 1;
 
                 LocalDate createdAt = LocalDate.now();
-                User newUser = new User(newUserId, ful
+                User newUser = new User(newUserId, fullName, email, birthDate, initialCash, createdAt, createdAt);
+
+                userService.addUser(newUser);
+                System.out.println();
+                ConsolePrinter.printMenuTitle("─────────────────────────────────────── Registration Complete ─────────────────────────────────────");
+                ConsolePrinter.printConfirmation("Registration complete!");
+                ConsolePrinter.printMenuOption("Your unique user ID is " + Colors.ANSI_BLUE + newUserId + Colors.MENUOPTION + " and will be used to log in to your account from now on." +
+                        "\nWelcome to Investeringsklubben! ٩(◕‿◕)۶" + Colors.RESET);
+                CSVWriter.append(AppConstants.USERS_FILE,newUser);
+
+                start();
+                break;
+            } else if (choice.equals("2")) {
+                start();
+                break;
+            }
+        }
+    }
+}

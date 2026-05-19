@@ -214,3 +214,8 @@ public class PortfolioService {
 
         }
         Collections.reverse(history);
+        return history;
+
+    }
+
+}
