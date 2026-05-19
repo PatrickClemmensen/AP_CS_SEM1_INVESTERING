@@ -140,6 +140,16 @@ public class Position implements Rankable, CSVSerializable, Comparable<Position>
                 averageBuyPrice, asset.getPrice(), gainColored);
     }
 
+    /**
+     * Compares this position to another by percentage return, in descending order.
+     * <p>
+     *     Used when sorting a portfolio so that the best-performing positions appear first.
+     * <p>
+     *
+     * @param other the position to compare against
+     * @return a negative integer if this position has a higher return than {@code other},
+     *         zero if equal, or a positive integer if this position has a lower return
+     */
     @Override
     public int compareTo(Position other) {
         return Double.compare(other.getRankValue(), this.getRankValue()); // descending — best return first

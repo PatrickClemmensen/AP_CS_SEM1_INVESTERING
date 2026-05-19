@@ -10,6 +10,13 @@ import util.benchmark.FileReadBenchmark;
 
 import java.io.File;
 
+/**
+ * Entry point of the Investeringsklubben application.
+ * <p>
+ *     Initializes all services and launches the main menu,
+ *     which handles login and routing for both member and leader roles.
+ * </p>
+ */
 public class Main {
     public static void main(String[] args) {
         //FileReadBenchmark.run(AppConstants.STOCK_MARKET_FILE, 1000);
