@@ -5,12 +5,11 @@ import util.constants.Colors;
 import util.csv.CSVReader;
 import util.printing.ConsolePrinter;
 
+import java.util.*;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+
 
 /**
  * Service responsible for loading and querying the stock market.
@@ -83,6 +82,20 @@ public class StockMarketService {
         return stockMap.values();
     }
 
+    public Collection<Stock> searchStocks(String searchInput) {
+        String search = searchInput.trim().toLowerCase();
+
+        Collection<Stock> results = new ArrayList<>();
+
+        for (Stock stock : stockMap.values()) {
+            if (stock.getTicker().toLowerCase().contains(search) ||
+                    stock.getName().toLowerCase().contains(search) ||
+                    stock.getSector().toLowerCase().contains(search)) {
+                results.add(stock);
+            }
+        }
+        return results;
+    }
 
     /**
      * Prints a formatted table of all available stocks to the console
@@ -92,12 +105,15 @@ public class StockMarketService {
      *     Each stock row is formatted using {@link Stock#toString()}.
      * </p>
      */
-    public void viewMarket(){
+    public void viewMarket() {
+        viewMarket(stockMap.values());
+    }
+    public void viewMarket(Collection<Stock> stocks){
         ConsolePrinter.printMenuTitle("──────────────────────────────────────────── Stock Market ─────────────────────────────────────────");
         System.out.printf("%-10s %-40s %-22s %16s %8s%n", "TICKER", "NAME", "SECTOR", "PRICE", "CURR");
         ConsolePrinter.printSeparator();
 
-        for(Stock stock : stockMap.values()){
+        for(Stock stock : stocks){
             System.out.println(Colors.MENUOPTION + stock + Colors.RESET);
         }
     }

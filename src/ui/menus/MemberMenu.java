@@ -15,6 +15,7 @@ import util.printing.ConsolePrinter;
 import util.validation.MenuChoiceValidator;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
 
@@ -56,7 +57,7 @@ public class MemberMenu {
         show();
         while (true) {
             try {
-                int input = MenuChoiceValidator.readChoice(scanner, 0, 5, "logout");
+                int input = MenuChoiceValidator.readChoice(scanner, 0, 6, "logout");
                 MemberOption option = MemberOption.fromChoice(input);
                 if (option == MemberOption.EXIT) {
                     ConsolePrinter.printConfirmation("Logout successful!");
@@ -97,6 +98,7 @@ public class MemberMenu {
             case OPTION_3 -> sellStock();
             case OPTION_4 -> viewMarket();
             case OPTION_5 -> viewTransactions();
+            case OPTION_6 -> searchStocks();
         }
     }
 
@@ -354,6 +356,18 @@ public class MemberMenu {
                         t.getPrice()
                 ));
             }
+        }
+        show();
+    }
+    private void searchStocks(){
+        ConsolePrinter.printMenuOption("Search by ticker, navn or sector: ");
+        String searchInput = scanner.nextLine();
+        Collection<Stock> results = marketService.searchStocks(searchInput);
+
+        if (results.isEmpty()){
+            ConsolePrinter.printError("No stock found.");
+        } else {
+            marketService.viewMarket(results);
         }
         show();
     }
