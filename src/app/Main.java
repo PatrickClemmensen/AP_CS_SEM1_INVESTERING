@@ -1,6 +1,7 @@
 package app;
 
 import model.asset.Stock;
+import service.BondMarketService;
 import service.PortfolioService;
 import service.StockMarketService;
 import service.UserService;
@@ -25,9 +26,10 @@ public class Main {
 
         UserService userService = new UserService(AppConstants.USERS_FILE);
         StockMarketService marketService = new StockMarketService(AppConstants.STOCK_MARKET_FILE);
-        PortfolioService portfolioService = new PortfolioService(marketService);
+        BondMarketService bondMarketService = new BondMarketService(AppConstants.BOND_MARKET_FILE);
+        PortfolioService portfolioService = new PortfolioService(marketService, bondMarketService);
 
-        new MainMenu(userService, marketService,portfolioService).start();
+        new MainMenu(userService, marketService, bondMarketService, portfolioService).start();
 
     }
 }

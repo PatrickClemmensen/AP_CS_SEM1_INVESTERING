@@ -2,7 +2,6 @@ package ui.menus;
 
 import interfaces.Tradeable;
 import model.asset.Stock;
-import model.asset.Asset;
 import model.portfolio.Position;
 import model.portfolio.User;
 import service.PortfolioService;
@@ -30,10 +29,10 @@ import java.util.*;
  * </p>
  */
 public class LeaderMenu {
-    private StockMarketService marketService;
-    private PortfolioService portfolioService;
-    private UserService userService;
-    private Scanner scanner = new Scanner(System.in);
+    private final StockMarketService marketService;
+    private final PortfolioService portfolioService;
+    private final UserService userService;
+    private final Scanner scanner = new Scanner(System.in);
 
     /**
      * Creates a {@code LeaderMenu} backed by the provided services.
@@ -42,24 +41,25 @@ public class LeaderMenu {
      * @param portfolioService service for loading and querying member portfolios
      * @param userService      service for accessing and searching user accounts
      */
-    public LeaderMenu(StockMarketService marketService, PortfolioService portfolioService, UserService userService) {
-        this.marketService = marketService;
+    public LeaderMenu(StockMarketService marketService, PortfolioService portfolioService,
+                      UserService userService) {
+        this.marketService    = marketService;
         this.portfolioService = portfolioService;
-        this.userService = userService;
+        this.userService      = userService;
     }
 
     /**
-     * Initiation of the menu process - displays the menu and loops until the user chooses to exit..
+     * Initiation of the menu process - displays the menu and loops until the user chooses to exit.
      * Also contains the logic for exiting the menu.
      */
     public void start() {
         show();
         while (true) {
             try {
-                int input = MenuChoiceValidator.readChoice(scanner, 0, 5,"logout");
+                int input = MenuChoiceValidator.readChoice(scanner, 0, 5, "logout");
                 LeaderOption option = LeaderOption.fromChoice(input);
                 if (option == LeaderOption.EXIT) {
-                    ConsolePrinter.printConfirmation("Logout succesful!");
+                    ConsolePrinter.printConfirmation("Logout successful!");
                     break;
                 }
                 handleChoice(option);
@@ -70,7 +70,7 @@ public class LeaderMenu {
     }
 
     /**
-     * Prints the menu itself with the logged-in user's name and their current cash balance.
+     * Prints the Club Leader menu.
      */
     private void show() {
         System.out.println();
@@ -84,8 +84,9 @@ public class LeaderMenu {
     }
 
     /**
-     * Directs the user to a new submenu based on the option they choose.
-     * @param option choice made by the logged-in user
+     * Directs the leader to a new submenu based on the chosen option.
+     *
+     * @param option choice made by the logged-in leader
      */
     private void handleChoice(LeaderOption option) {
         switch (option) {
@@ -96,6 +97,8 @@ public class LeaderMenu {
             case OPTION_5 -> searchMembers();
         }
     }
+
+    // ─────────────────────────────────────────── MEMBERS ───────────────────────────────────────────
 
     /**
      * Displays a table of all registered members sorted by user ID,
@@ -116,9 +119,9 @@ public class LeaderMenu {
         ConsolePrinter.printSeparator();
 
         for (User member : members) {
-            double cash = member.getCashBalance();
+            double cash     = member.getCashBalance();
             double holdings = member.getPortfolio().getTotalValue();
-            double total = cash + holdings;
+            double total    = cash + holdings;
             System.out.printf(Colors.MENUOPTION + "%-5d %-25s %18.2f %18.2f %18.2f%n" + Colors.RESET,
                     member.getUserId(), member.getFullName(), cash, holdings, total);
         }
@@ -128,8 +131,14 @@ public class LeaderMenu {
     }
 
     /**
-     * Displays a leaderboard of the top 10 members ranked by total wealth (cash + holdings) in DKK,
-     * sorted in descending order.
+     * Displays a leaderboard of all members ranked by total wealth or percentage return.
+     * <p>
+     *     The leader chooses the sort strategy:
+     *     <ul>
+     *         <li>Total value — uses {@link Comparable} on {@link User}</li>
+     *         <li>Percentage return — uses {@link util.comparator.ByPercentReturn} {@link java.util.Comparator}</li>
+     *     </ul>
+     * </p>
      */
     private void viewLeaderboard() {
         List<User> members = new ArrayList<>(userService.getAllUsers());
@@ -171,22 +180,26 @@ public class LeaderMenu {
         show();
     }
 
+    // ─────────────────────────────────────────── DISTRIBUTION ───────────────────────────────────────────
+
     /**
      * Displays how the club's total invested value is distributed across individual stocks.
-     * Each ticker is shown with its DKK value and percentage share of all holdings,
-     * sorted descending by percentage. Cash balances are excluded.
+     * <p>
+     *     Each ticker is shown with its DKK value and percentage share of all holdings,
+     *     sorted descending by percentage. Cash balances are excluded.
+     * </p>
      */
-    private void viewStockDistribution(){
+    private void viewStockDistribution() {
         List<User> members = new ArrayList<>(userService.getAllUsers());
-        for (User member : members){
+        for (User member : members) {
             portfolioService.loadPortfolio(member);
         }
 
         Map<String, Double> valueByTicker = new LinkedHashMap<>();
-        for (User member : members){
-            for (Position position : member.getPortfolio().getPositions()){
+        for (User member : members) {
+            for (Position position : member.getPortfolio().getPositions()) {
                 String ticker = position.getAsset().getTicker();
-                double value = position.getCurrentValue();
+                double value  = position.getCurrentValue();
                 valueByTicker.merge(ticker, value, Double::sum);
             }
         }
@@ -197,30 +210,29 @@ public class LeaderMenu {
             return;
         }
 
-        double totalInvested = valueByTicker.values().stream().mapToDouble(Double::doubleValue).sum();
-
+        double totalInvested = valueByTicker.values().stream()
+                .mapToDouble(Double::doubleValue).sum();
 
         List<Map.Entry<String, Double>> sorted = new ArrayList<>(valueByTicker.entrySet());
         sorted.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
 
         System.out.println();
         ConsolePrinter.printMenuTitle("──────────────────────────────────────── Stock Distribution ────────────────────────────────────────");
-
         System.out.printf(Colors.MENUHEADER + "%-10s %-40s %18s %10s%n" + Colors.RESET,
                 "TICKER", "NAME", "VALUE (DKK)", "SHARE (%)");
         ConsolePrinter.printSeparator();
 
         for (Map.Entry<String, Double> entry : sorted) {
-            String ticker = entry.getKey();
-            double value = entry.getValue();
-            double percentage = (value / totalInvested * 100);
+            String ticker    = entry.getKey();
+            double value     = entry.getValue();
+            double percentage = (value / totalInvested) * 100;
 
-            Asset asset = marketService.findByTicker(ticker);
+            // getName() is on Tradeable — works for both stocks and bonds
+            Tradeable asset = marketService.findByTicker(ticker);
             String name = (asset != null) ? asset.getName() : ticker;
 
             System.out.printf(Colors.MENUOPTION + "%-10s %-40s %18.2f %9.2f%%%n" + Colors.RESET,
                     ticker, name, value, percentage);
-
         }
 
         ConsolePrinter.printSeparator();
@@ -232,24 +244,25 @@ public class LeaderMenu {
 
     /**
      * Displays how the club's total invested value is distributed across sectors.
-     * Each sector is shown with its DKK value and percentage share of all holdings,
-     * sorted descending by percentage. Cash balances are excluded.
+     * <p>
+     *     Each sector is shown with its DKK value and percentage share of all holdings,
+     *     sorted descending by percentage. Cash balances are excluded.
+     *     Non-stock assets (e.g. bonds) are grouped under "Other".
+     * </p>
      */
-
     private void viewSectorDistribution() {
         List<User> members = new ArrayList<>(userService.getAllUsers());
         for (User member : members) {
             portfolioService.loadPortfolio(member);
         }
 
-        // Aggregate position values by sector across all members
         Map<String, Double> valueBySector = new LinkedHashMap<>();
         for (User member : members) {
             for (Position position : member.getPortfolio().getPositions()) {
-                Asset asset = position.getAsset();
-                String sector = (asset instanceof Stock)
-                        ? ((Stock) asset).getSector()
-                        : "Unknown";
+                // instanceof pattern matching — works for Tradeable field on Position
+                String sector = (position.getAsset() instanceof Stock stock)
+                        ? stock.getSector()
+                        : "Other";
                 double value = position.getCurrentValue();
                 valueBySector.merge(sector, value, Double::sum);
             }
@@ -261,9 +274,9 @@ public class LeaderMenu {
             return;
         }
 
-        double totalInvested = valueBySector.values().stream().mapToDouble(Double::doubleValue).sum();
+        double totalInvested = valueBySector.values().stream()
+                .mapToDouble(Double::doubleValue).sum();
 
-        // Build sorted list of entries descending by value
         List<Map.Entry<String, Double>> sorted = new ArrayList<>(valueBySector.entrySet());
         sorted.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
 
@@ -274,10 +287,9 @@ public class LeaderMenu {
         ConsolePrinter.printSeparator();
 
         for (Map.Entry<String, Double> entry : sorted) {
-            String sector = entry.getKey();
-            double value = entry.getValue();
+            String sector    = entry.getKey();
+            double value     = entry.getValue();
             double percentage = (value / totalInvested) * 100;
-
             System.out.printf(Colors.MENUOPTION + "%-30s %18.2f %9.2f%%%n" + Colors.RESET,
                     sector, value, percentage);
         }
@@ -289,16 +301,22 @@ public class LeaderMenu {
         show();
     }
 
+    // ─────────────────────────────────────────── SEARCH ───────────────────────────────────────────
+
     /**
      * Allows the leader to search for members by full name.
+     * <p>
+     *     Results are displayed in a formatted member table.
+     *     If no matches are found, an error message is shown.
+     * </p>
      */
-    private void searchMembers(){
+    private void searchMembers() {
         ConsolePrinter.printMenuOption("Search for member by name: ");
         String searchInput = scanner.nextLine();
 
         Collection<User> results = userService.searchMembers(searchInput);
 
-        if (results.isEmpty()){
+        if (results.isEmpty()) {
             ConsolePrinter.printError("No member found.");
         } else {
             printMembers(results);
@@ -307,10 +325,11 @@ public class LeaderMenu {
     }
 
     /**
-     * Prints a table with the given member(s), which was searched for
-     * @param members the members to print
+     * Prints a formatted table of the given members.
+     *
+     * @param members the members to display
      */
-    private void printMembers(Collection<User> members) { //Method to help print members from search
+    private void printMembers(Collection<User> members) {
         System.out.println();
         ConsolePrinter.printMenuTitle("──────────────────────────────────────────── Members ──────────────────────────────────────────────");
         System.out.printf(Colors.MENUHEADER + "%-5s %-25s %18s %18s %18s%n" + Colors.RESET,
@@ -320,9 +339,9 @@ public class LeaderMenu {
         for (User member : members) {
             portfolioService.loadPortfolio(member);
 
-            double cash = member.getCashBalance();
+            double cash     = member.getCashBalance();
             double holdings = member.getPortfolio().getTotalValue();
-            double total = cash + holdings;
+            double total    = cash + holdings;
 
             System.out.printf(Colors.MENUOPTION + "%-5d %-25s %18.2f %18.2f %18.2f%n" + Colors.RESET,
                     member.getUserId(), member.getFullName(), cash, holdings, total);

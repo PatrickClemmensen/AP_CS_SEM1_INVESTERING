@@ -7,8 +7,8 @@ package ui.enums;
 public enum MemberOption {
 
     OPTION_1(1, "View portfolio"),
-    OPTION_2(2, "Buy stock"),
-    OPTION_3(3, "Sell stock"),
+    OPTION_2(2, "Buy asset"),
+    OPTION_3(3, "Sell asset"),
     OPTION_4(4, "View market"),
     OPTION_5(5, "View transaction history"),
     OPTION_6(6, "Search for stocks"),

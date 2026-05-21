@@ -1,6 +1,7 @@
 package ui.menus;
 
 import model.portfolio.User;
+import service.BondMarketService;
 import service.PortfolioService;
 import service.StockMarketService;
 import service.UserService;
@@ -35,6 +36,7 @@ public class MainMenu {
 
     private UserService userService;
     private StockMarketService marketService;
+    private BondMarketService bondService;
     private PortfolioService portfolioService;
 
     /**
@@ -49,10 +51,11 @@ public class MainMenu {
      * @param marketService is used to access the stock market.
      * @param portfolioService is used to access portfolio functionalities.
      */
-    public MainMenu(UserService userService, StockMarketService marketService,
+    public MainMenu(UserService userService, StockMarketService marketService, BondMarketService bondService,
                     PortfolioService portfolioService) {
         this.userService = userService;
         this.marketService = marketService;
+        this.bondService = bondService;
         this.portfolioService = portfolioService;
     }
 
@@ -101,7 +104,7 @@ public class MainMenu {
             try {
                 User user = userService.findById(Integer.valueOf(scanner.nextLine()));
                 if (user != null) {
-                    new MemberMenu(user, marketService, portfolioService).start();
+                    new MemberMenu(user, marketService, bondService, portfolioService).start();
                     start();
                     break;
                 } else {

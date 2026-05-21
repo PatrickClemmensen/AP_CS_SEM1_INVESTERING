@@ -30,4 +30,6 @@ public interface Tradeable {
      * @return the currency code (e.g. {@code "DKK"}
      */
     String getCurrency();
+
+    String getName();
 }

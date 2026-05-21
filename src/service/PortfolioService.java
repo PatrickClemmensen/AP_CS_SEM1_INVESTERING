@@ -37,14 +37,17 @@ import static util.AppConstants.TRANSACTIONS_FILE;
  */
 public class PortfolioService {
     private StockMarketService marketService;
+    private final BondMarketService bondMarketService;
+
 
     /**
      * Constructs a new {@code PortfolioService} backed by the given market service.
      *
      * @param marketService the service used to find stock by ticker
      */
-    public PortfolioService(StockMarketService marketService) {
+    public PortfolioService(StockMarketService marketService, BondMarketService bondMarketService) {
         this.marketService = marketService;
+        this.bondMarketService = bondMarketService;
     }
 
     /**
@@ -77,7 +80,7 @@ public class PortfolioService {
         if (existing != null) {
             existing.increaseQuantity(quantity, asset.getPrice());
         } else {
-            user.getPortfolio().addPosition(new Position((Asset)asset, quantity, asset.getPrice()));
+            user.getPortfolio().addPosition(new Position(asset, quantity, asset.getPrice()));
         }
 
         return new Transaction(
@@ -107,36 +110,37 @@ public class PortfolioService {
      * @throws IllegalArgumentException                     if the quantity is zero or negative
      * @throws util.exception.InsufficientQuantityException if the user does not own enough shares
      */
-        public Transaction sell(User user, String ticker, int quantity) {
-            TickerValidator.validate(ticker, marketService);
-            QuantityValidator.validate(quantity);
+    public Transaction sell(User user, String ticker, int quantity) {
+        QuantityValidator.validate(quantity);
 
-            Stock stock = marketService.findByTicker(ticker);
-            Portfolio portfolio = user.getPortfolio();
-            Position position = portfolio.findByTicker(ticker);
+        Portfolio portfolio = user.getPortfolio();
+        Position position   = portfolio.findByTicker(ticker);
 
-            if (position == null || position.getQuantity() < quantity) {
-                throw new InsufficientQuantityException("Insufficient quantity for ticker " + ticker);
-            }
-
-            double totalValue = stock.getPrice() * quantity;
-            user.addCash(totalValue);
-            position.decreaseQuantity(quantity);
-
-            if (position.getQuantity() == 0) {
-                portfolio.removePosition(position);
-            }
-
-            return new Transaction(
-                    user.getUserId(),
-                    LocalDate.now(),
-                    ticker,
-                    stock.getPrice(),
-                    AppConstants.BASE_CURRENCY,
-                    OrderType.SELL,
-                    quantity
-            );
+        if (position == null || position.getQuantity() < quantity) {
+            throw new InsufficientQuantityException("Insufficient quantity for ticker " + ticker);
         }
+
+        // get price directly from position — works for both stocks and bonds
+        Tradeable asset    = position.getAsset();
+        double totalValue  = asset.getPrice() * quantity;
+
+        user.addCash(totalValue);
+        position.decreaseQuantity(quantity);
+
+        if (position.getQuantity() == 0) {
+            portfolio.removePosition(position);
+        }
+
+        return new Transaction(
+                user.getUserId(),
+                LocalDate.now(),
+                ticker,
+                asset.getPrice(),
+                asset.getCurrency(),
+                OrderType.SELL,
+                quantity
+        );
+    }
 
     /**
      * Reads Transaction.csv, updates a given users portfolio with positions.
@@ -151,21 +155,23 @@ public class PortfolioService {
             int userId = Integer.parseInt(row[1]);
             if (userId != user.getUserId()) continue;
 
-            String ticker = row[3];
-            double price = Double.parseDouble(row[4].replace(",", "."));
+            String ticker    = row[3];
+            double price     = Double.parseDouble(row[4].replace(",", "."));
             OrderType orderType = OrderType.fromString(row[6]);
-            int quantity = Integer.parseInt(row[7]);
+            int quantity     = Integer.parseInt(row[7]);
 
-            Stock stock = marketService.findByTicker(ticker);
-            if (stock == null) continue;
+            // look up in stocks first, then bonds
+            Tradeable asset = marketService.findByTicker(ticker);
+            if (asset == null) asset = bondMarketService.findByTicker(ticker);
+            if (asset == null) continue;
 
             Portfolio portfolio = user.getPortfolio();
-            Position existing = portfolio.findByTicker(ticker);
+            Position existing   = portfolio.findByTicker(ticker);
 
             if (orderType == OrderType.BUY) {
                 user.deductCash(price * quantity);
                 if (existing == null) {
-                    portfolio.addPosition(new Position(stock, quantity, price));
+                    portfolio.addPosition(new Position(asset, quantity, price));
                 } else {
                     existing.increaseQuantity(quantity, price);
                 }
