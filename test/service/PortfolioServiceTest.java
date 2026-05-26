@@ -1,5 +1,6 @@
 package service;
 
+import model.asset.Bond;
 import model.portfolio.Position;
 import model.portfolio.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,7 @@ public class PortfolioServiceTest {
 
     private PortfolioService portfolioService;
     private StockMarketService marketService;
+    private BondMarketService bondService;
     private User user;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
@@ -22,7 +24,8 @@ public class PortfolioServiceTest {
     void setUp() {
         AppConstants.TRANSACTIONS_FILE = "test/resources/transaction_test.csv";
         marketService = new StockMarketService("test/resources/stock_test.csv");
-        portfolioService = new PortfolioService(marketService);
+        bondService = new BondMarketService(AppConstants.BOND_MARKET_FILE);
+        portfolioService = new PortfolioService(marketService, bondService);
         user = new User(1, "Test User", "test@test.com",
                 LocalDate.parse("01-01-1990", FORMATTER),
                 100000.0,

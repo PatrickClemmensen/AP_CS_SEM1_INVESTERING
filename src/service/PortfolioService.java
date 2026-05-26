@@ -1,6 +1,8 @@
 package service;
 
+import interfaces.Tradeable;
 import model.asset.Stock;
+import model.asset.Asset;
 import model.portfolio.Portfolio;
 import model.portfolio.Position;
 import model.portfolio.User;
@@ -11,21 +13,41 @@ import util.constants.Colors;
 import util.csv.CSVReader;
 import util.exception.InsufficientFundsException;
 import util.exception.InsufficientQuantityException;
+import util.validation.CashBalanceValidator;
+import util.validation.TickerValidator;
+import util.validation.QuantityValidator;
 
+import javax.swing.plaf.basic.BasicDesktopIconUI;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
+import static util.AppConstants.TRANSACTIONS_FILE;
+
+/**
+ * Service class responsible for managing user portfolios and stock transactions.
+ * <p>
+ *     Handles buying and selling of stocks, loading portfolios from persistent
+ *     storage, and retrieving transaction history. All operations are validated
+ *     before execution using the appropriate validator classes.
+ * </p>
+ */
 public class PortfolioService {
-    // TODO: declare a reference to StockMarketService
     private StockMarketService marketService;
-    // TODO: declare an int counter for generating transaction IDs
+    private final BondMarketService bondMarketService;
+
 
     /**
+     * Constructs a new {@code PortfolioService} backed by the given market service.
+     *
      * @param marketService the service used to find stock by ticker
      */
-    public PortfolioService(StockMarketService marketService) {
-        // TODO: initialize fields
+    public PortfolioService(StockMarketService marketService, BondMarketService bondMarketService) {
         this.marketService = marketService;
+        this.bondMarketService = bondMarketService;
     }
 
     /**
@@ -37,124 +59,88 @@ public class PortfolioService {
      * If the user already owns the stock, the existing position is updated with the additional quantity and purchase price.
      * </p>
      * @param user the user buying the stock
-     * @param ticker the ticker of the stock to buy
+     * @param asset the asset object to buy
      * @param quantity the amount of stocks to buy
-     * @return
+     * @return a {@link Transaction} record of the purchase
+     * @throws util.exception.InvalidAssetException         if the ticker does not exist in the market
+     * @throws IllegalArgumentException                     if the quantity is zero or negative
+     * @throws util.exception.InsufficientFundsException    if the user cannot afford the purchase
      */
-    public Transaction buy(User user, String ticker, int quantity) {
-        // TODO: validate ticker (TickerValidator)
-        Stock stock = marketService.findByTicker(ticker);
-        if (stock == null){
-            throw new IllegalArgumentException("Stock not found"+ticker);
-        }
-        // TODO: validate quantity (QuantityValidator)
-        if(quantity <= 0){
-            throw new IllegalArgumentException("Quantity must be greater than 0");
-        }
-        // TODO: calculate total cost: stock.getPrice() * quantity
-        double totalCost = stock.getPrice()*quantity;
-        // TODO: validate cash balance (CashBalanceValidator)
-        if(user.getCashBalance() < totalCost) {
-            double shortfall = totalCost - user.getCashBalance();
-            throw new InsufficientFundsException("Insufficient funds. Required: " + totalCost + " DKK | Available: " + shortfall + " DKK");
-        }
-        // TODO: deduct total cost from user cash (user.deductCash())
+    public Transaction buy(User user, Tradeable asset, int quantity) {
+        // no longer need to look up by ticker — asset is passed in directly
+        QuantityValidator.validate(quantity);
+
+        double totalCost = asset.getPrice() * quantity;
+
+        CashBalanceValidator.validate(user, totalCost);
+
         user.deductCash(totalCost);
 
-        Position existing = user.getPortfolio().findByTicker(ticker);
-        if (existing != null){
-            existing.increaseQuantity(quantity, stock.getPrice());
+        Position existing = user.getPortfolio().findByTicker(asset.getTicker());
+        if (existing != null) {
+            existing.increaseQuantity(quantity, asset.getPrice());
         } else {
-            user.getPortfolio().addPosition(new Position(stock,quantity,stock.getPrice()));
+            user.getPortfolio().addPosition(new Position(asset, quantity, asset.getPrice()));
         }
-
-
-        // TODO: create and return a Transaction with OrderType.BUY
 
         return new Transaction(
                 user.getUserId(),
                 LocalDate.now(),
-                ticker,
-                stock.getPrice(),
-                stock.getCurrency(),
+                asset.getTicker(),
+                asset.getPrice(),
+                asset.getCurrency(),
                 OrderType.BUY,
                 quantity
         );
     }
 
     /**
-     * Sells a given quantity of a stock from the user's portfolio.
+     * Executes a stock for the given user.
      * <p>
-     * The method finds the stock in the market to get the current price, then finds the user's existing position in the portfolio.
-     * If the user does not own enough of the stock, an InsufficientQuantityException is thrown.
+     *     Validates the ticker and quantity before proceeding. The user must own
+     *     sufficient shares of the stock to complete the sale. The proceeds are
+     *     credited to the user's cash balance, and the position is reduced accordingly.
+     *     If all shares are sold, the position is removed from the portfolio entirely.
      * </p>
-     * <p>
-     * If the sale is valid, the user receives cash equal to the current stock price times the quantity sold.
-     * The quantity is then deducted from the portfolio position.
-     * If the position reaches 0, it is removed from the portfolio.
-     * </p>
-     * @param user the user selling the stock
-     * @param ticker the ticker of the stock to sell
-     * @param quantity the number of stocks to sell
-     * @return
+     * @param user      the user selling the stock
+     * @param ticker    the ticker of the stock to sell
+     * @param quantity  the number of stocks to sell
+     * @return a {@link Transaction} record of the sale
+     * @throws util.exception.InvalidAssetException         if the ticker does not exist in the market
+     * @throws IllegalArgumentException                     if the quantity is zero or negative
+     * @throws util.exception.InsufficientQuantityException if the user does not own enough shares
      */
     public Transaction sell(User user, String ticker, int quantity) {
-        //Find the stock in the market to get the current price
-        Stock stock = marketService.findByTicker(ticker);
+        QuantityValidator.validate(quantity);
 
-        //Get the user's portfolio and find their position in this stock
         Portfolio portfolio = user.getPortfolio();
-        Position position = portfolio.findByTicker(ticker);
+        Position position   = portfolio.findByTicker(ticker);
 
-        //Safety check
         if (position == null || position.getQuantity() < quantity) {
             throw new InsufficientQuantityException("Insufficient quantity for ticker " + ticker);
         }
 
-        //Calculate how much cash the user receives from the sale
-        double totalValue = stock.getPrice() * quantity;
+        // get price directly from position — works for both stocks and bonds
+        Tradeable asset    = position.getAsset();
+        double totalValue  = asset.getPrice() * quantity;
 
-        //Credit the cash to the user's balance
         user.addCash(totalValue);
-
-        //Reduce the position by the sold quantity
         position.decreaseQuantity(quantity);
 
-
-        //If they sold everything, remove the position from the portfolio entirely
         if (position.getQuantity() == 0) {
             portfolio.removePosition(position);
         }
 
-        //Build and return the transaction record
         return new Transaction(
                 user.getUserId(),
                 LocalDate.now(),
                 ticker,
-                stock.getPrice(),
-                AppConstants.BASE_CURRENCY,
+                asset.getPrice(),
+                asset.getCurrency(),
                 OrderType.SELL,
                 quantity
         );
     }
-
-
-        // TODO: validate ticker (TickerValidator)
-        // TODO: validate quantity (QuantityValidator)
-        // TODO: check user owns this stock (portfolio.findByTicker())
-        //   If position is null or position.getQuantity() < quantity
-        //   throw InsufficientQuantityException
-
-        // TODO: calculate total value: stock.getPrice() * quantity
-        // TODO: add total value to user cash (user.addCash())
-
-        // TODO: reduce position quantity (position.addQuantity(-quantity))
-        //   If quantity reaches zero, remove the position from the portfolio entirely
-        //   Hint: add a removePosition(String ticker) method to Portfolio
-
-        // TODO: create and return a Transaction with OrderType.SELL
-
-
 
     /**
      * Reads Transaction.csv, updates a given users portfolio with positions.
@@ -163,27 +149,29 @@ public class PortfolioService {
     public void loadPortfolio(User user) {
         if (user.getPortfolio().isLoaded()) return;
 
-        List<String[]> rows = CSVReader.read(AppConstants.TRANSACTIONS_FILE);
+        List<String[]> rows = CSVReader.read(TRANSACTIONS_FILE);
 
         for (String[] row : rows) {
             int userId = Integer.parseInt(row[1]);
             if (userId != user.getUserId()) continue;
 
-            String ticker = row[3];
-            double price = Double.parseDouble(row[4].replace(",", "."));
+            String ticker    = row[3];
+            double price     = Double.parseDouble(row[4].replace(",", "."));
             OrderType orderType = OrderType.fromString(row[6]);
-            int quantity = Integer.parseInt(row[7]);
+            int quantity     = Integer.parseInt(row[7]);
 
-            Stock stock = marketService.findByTicker(ticker);
-            if (stock == null) continue;
+            // look up in stocks first, then bonds
+            Tradeable asset = marketService.findByTicker(ticker);
+            if (asset == null) asset = bondMarketService.findByTicker(ticker);
+            if (asset == null) continue;
 
             Portfolio portfolio = user.getPortfolio();
-            Position existing = portfolio.findByTicker(ticker);
+            Position existing   = portfolio.findByTicker(ticker);
 
             if (orderType == OrderType.BUY) {
                 user.deductCash(price * quantity);
                 if (existing == null) {
-                    portfolio.addPosition(new Position(stock, quantity, price));
+                    portfolio.addPosition(new Position(asset, quantity, price));
                 } else {
                     existing.increaseQuantity(quantity, price);
                 }
@@ -199,6 +187,41 @@ public class PortfolioService {
         }
 
         user.getPortfolio().setLoaded(true);
+    }
+
+    /**
+     * Returns a complete list of all transactions made by the given user, sorted newest first.
+     * <p>
+     *     Reads all rows from the transactions CSV, filters on {@code userId}, and parses each
+     *     matching row into a {@link Transaction} object. The list is reversed after loading so
+     *     the most recently appended transaction appears first.
+     * </p>
+     *
+     * @param user the user whose transaction history is requested
+     * @return a {@link List} of {@link Transaction} objects sorted newest first;
+     *         never {@code null}, may be empty if the user has made no trades
+     */
+    public List<Transaction> getTransactionHistory(User user) {
+        List<String[]> rows = CSVReader.read(TRANSACTIONS_FILE);
+        List<Transaction> history = new ArrayList<>();
+
+        for (String[] row : rows) {
+            int userId = Integer.parseInt(row[1]);
+            if (userId != user.getUserId()) continue;
+
+            LocalDate date = LocalDate.parse(row[2], DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+            String ticker = row[3];
+            double price = Double.parseDouble(row[4].replace(",", "."));
+            String currency = row[5];
+            OrderType orderType = OrderType.fromString(row[6]);
+            int quantity = Integer.parseInt(row[7]);
+
+            history.add(new Transaction(user.getUserId(), date, ticker, price, currency, orderType, quantity));
+
+        }
+        Collections.reverse(history);
+        return history;
+
     }
 
 }

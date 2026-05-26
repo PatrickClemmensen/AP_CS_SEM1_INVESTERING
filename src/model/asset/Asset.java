@@ -10,7 +10,6 @@ import java.time.LocalDate;
  * </p>
  */
 public abstract class Asset {
-    // TODO: declare fields based on the shared columns in stockMarket.csv and bondMarket.csv
     private String ticker;
     private String name;
     private double price;
@@ -18,7 +17,6 @@ public abstract class Asset {
     private String rating;
     private String market;
     private LocalDate lastUpdated;
-    // Hint: ticker, name, price, currency, rating, market, lastUpdated
 
     /**
      * Constructs a new {@code Asset} with the given market data.
@@ -33,7 +31,6 @@ public abstract class Asset {
      */
     public Asset(String ticker, String name, double price, String currency,
                  String rating, String market, LocalDate lastUpdated) {
-        // TODO: initialize fields
         this.ticker = ticker;
         this.name = name;
         this.price = validatePrice(price);
@@ -43,7 +40,6 @@ public abstract class Asset {
         this.lastUpdated = lastUpdated;
     }
 
-    // TODO: add getters for each field
     public String getTicker(){
         return ticker;
     }
@@ -72,6 +68,13 @@ public abstract class Asset {
         return lastUpdated;
     }
 
+    /**
+     * Validates that the given price is a positive value.
+     *
+     * @param price the price to validate
+     * @return the price if valid
+     * @throws IllegalArgumentException if the price is zero or negative
+     */
     private double validatePrice(double price) {
         if (price <= 0) {
             throw new IllegalArgumentException("Price must be positive: " + price);
@@ -85,7 +88,6 @@ public abstract class Asset {
      */
     @Override
     public String toString() {
-        // TODO: return a readable summary, e.g. "[NOVO-B] Novozymes — 710.00 DKK (Rating: AA)"
         return String.format("[%s] %s - %.2f %s", ticker, name, price, currency);
     }
 }

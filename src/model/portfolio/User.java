@@ -1,6 +1,7 @@
 package model.portfolio;
 
 import interfaces.CSVSerializable;
+import interfaces.Rankable;
 import util.printing.ConsolePrinter;
 
 import java.time.LocalDate;
@@ -17,9 +18,7 @@ import java.util.Scanner;
  *
  * @see Portfolio
  */
-public class User implements CSVSerializable {
-    // TODO: declare fields based on users.csv
-    // Hint: userId, fullName, email, birthDate, cashBalance, portfolio, createdAt, lastUpdated
+public class User implements CSVSerializable, Rankable, Comparable<User> {
     private final int userId;
     private final String fullName;
     private final String email;
@@ -27,6 +26,7 @@ public class User implements CSVSerializable {
     private final LocalDate createdAt;
     private LocalDate lastUpdated;
     private double cashBalance;
+    private double initialCash;
     private final Portfolio portfolio;
     private boolean portfolioLoaded = false;
 
@@ -47,19 +47,17 @@ public class User implements CSVSerializable {
      */
     public User(int userId, String fullName, String email,
                 LocalDate birthDate, double initialCash, LocalDate createdAt, LocalDate lastUpdated) {
-        // TODO: initialize fields
-        // Hint: create a new Portfolio() here
         this.userId = userId;
         this.fullName = fullName;
         this.email = email;
         this.birthDate = birthDate;
         this.cashBalance = initialCash;
+        this.initialCash = initialCash;
         this.createdAt = createdAt;
         this.lastUpdated = lastUpdated;
         this.portfolio = new Portfolio();
     }
 
-    // TODO: add getters
     public int getUserId() {return userId;}
     public String getFullName() { return fullName; }
     public String getEmail() { return email; }
@@ -74,7 +72,7 @@ public class User implements CSVSerializable {
     public double getCash(){
         return cashBalance;
     }
-
+    public double getInitialCash() { return initialCash; }
 
     /**
      * Deducts the given amount from the user's cash balance.
@@ -86,7 +84,6 @@ public class User implements CSVSerializable {
      * @param amount the amount to deduct in DKK
      */
     public void deductCash(double amount) {
-        // TODO: subtract amount from cashBalance
         cashBalance -= amount;
     }
 
@@ -99,7 +96,6 @@ public class User implements CSVSerializable {
      * @param amount the amount to add in DKK
      */
     public void addCash(double amount) {
-        // TODO: add amount to cashBalance
         cashBalance += amount;
     }
 
@@ -114,7 +110,6 @@ public class User implements CSVSerializable {
      */
     @Override
     public String toString() {
-        // TODO: return a readable summary, e.g. "[1] Maria Jensen | Cash: 100000.00 DKK"
         return String.format("[%d] %s | Cash: %.2f DKK", userId, fullName, cashBalance);
     }
 
@@ -138,5 +133,33 @@ public class User implements CSVSerializable {
                 String.valueOf(cashBalance),
                 createdAt.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")),
                 lastUpdated.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+    }
+
+    /**
+     * Compares this user to another by total wealth (cash + holdings), in descending order.
+     * <p>
+     *     Used when sorting the leaderboard so that the wealthiest member appears first.
+     * </p>
+     *
+     * @param other the user to compare against
+     * @return a negative integer if this user has greater total wealth than {@code other},
+     *         zero if equal, or a positive integer if this user has less total wealth
+     */
+    @Override
+    public int compareTo(User other) {
+        return Double.compare(other.getRankValue(), this.getRankValue()); // descending — highest value first
+    }
+
+    /**
+     * Returns the total wealth of this user (cash balance + current portfolio value), in DKK.
+     * <p>
+     *     Used as the ranking value for the leaderboard when sorting by total value.
+     * </p>
+     *
+     * @return total wealth in DKK
+     */
+    @Override
+    public double getRankValue() {
+        return cashBalance + portfolio.getTotalValue();
     }
 }

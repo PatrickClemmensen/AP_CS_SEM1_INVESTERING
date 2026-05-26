@@ -17,8 +17,6 @@ public class Portfolio {
     private List<Position> portfolio = new ArrayList<>();
     private boolean loaded = false;
 
-    // --- Loaded Guard ---
-
     /**
      * Returns whether this portfolio has already been populated from persistent storage.
      *
@@ -40,8 +38,6 @@ public class Portfolio {
     public void setLoaded(boolean loaded) {
         this.loaded = loaded;
     }
-
-    // --- Position Management ---
 
     /**
      * Adds a new {@link Position} to this portfolio.
@@ -77,16 +73,11 @@ public class Portfolio {
      * @return the matching {@link Position}, or {@code null} if no position with that ticker exists
      */
     public Position findByTicker(String ticker) {
-        // TODO: find and return a position by ticker symbol, or null if not found
-        // Hint: use a stream with a filter
-
         return portfolio.stream()
                 .filter(p -> p.getAsset().getTicker().equals(ticker))
                 .findFirst()
                 .orElse(null);
     }
-
-    // --- Calculations ---
 
     /**
      * Returns the total current market value of all positions in this portfolio, in DKK.

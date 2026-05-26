@@ -5,6 +5,14 @@ import util.printing.ConsolePrinter;
 import java.io.*;
 import java.util.List;
 
+/**
+ * Utility class for writing {@link interfaces.CSVSerializable} objects to CSV files.
+ * <p>
+ *     Supports both full overwrites (with a header row) and appending individual records
+ *     to an existing file. Uses a {@link BufferedWriter} for efficient I/O.
+ *     This class cannot be instantiated — all methods are static.
+ * </p>
+ */
 public class CSVWriter {
 
 
@@ -34,27 +42,19 @@ public class CSVWriter {
             }
         }
 
-        // TODO: open the file for writing (respect the append flag)
-        // TODO: if not appending, write the header line first
-        // TODO: call toCSVLine() on each item and write it as a line
-        // TODO: handle IOException
     }
-
 
     /**
      * Appends a list to a CSV file
      * @param filePath CSV file path to write to
      * @param item List of CSVSerializable items to write to CSV
      */
-    public static void append(String filePath, CSVSerializable item){
-        // TODO: open the file in append mode and write item.toCSVLine()
-        // TODO: handle IOException
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))){
-            writer.write(item.toCSVLine());
+    public static void append(String filePath, CSVSerializable item) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
             writer.newLine();
-        }catch(IOException e){
-            ConsolePrinter.printError("Error writing to file" + e.getMessage());
+            writer.write(item.toCSVLine());
+        } catch (IOException e) {
+            ConsolePrinter.printError("Error appending to file: " + e.getMessage());
         }
     }
-
 }

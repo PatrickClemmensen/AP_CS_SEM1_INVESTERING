@@ -1,14 +1,18 @@
 package ui.menus;
 
 import model.portfolio.User;
+import service.BondMarketService;
 import service.PortfolioService;
 import service.StockMarketService;
 import service.UserService;
 import ui.enums.MainOption;
 import ui.enums.MemberOption;
+import util.AppConstants;
 import util.constants.Colors;
+import util.csv.CSVWriter;
 import util.exception.InvalidInputException;
 import util.printing.ConsolePrinter;
+import util.validation.InitialInvestmentValidator;
 import util.validation.MenuChoiceValidator;
 import util.validation.PasswordValidator;
 
@@ -20,10 +24,19 @@ import java.util.Scanner;
 import static ui.enums.MainOption.OPTION_1;
 import static ui.enums.MainOption.OPTION_2;
 
+/**
+ * The top-level menu of the Investeringsklubben application.
+ * <p>
+ *     Presents login options for club members and the club leader,
+ *     and handles new member registration when an unknown user ID is entered.
+ *     Routes authenticated users to either {@link MemberMenu} or {@link LeaderMenu}.
+ * </p>
+ */
 public class MainMenu {
 
     private UserService userService;
     private StockMarketService marketService;
+    private BondMarketService bondService;
     private PortfolioService portfolioService;
 
     /**
@@ -32,14 +45,17 @@ public class MainMenu {
     Scanner scanner = new Scanner(System.in);
 
     /**
+     * Creates a {@code MainMenu} backed by the provided services.
+     *
      * @param userService is used to find users.
      * @param marketService is used to access the stock market.
      * @param portfolioService is used to access portfolio functionalities.
      */
-    public MainMenu(UserService userService, StockMarketService marketService,
+    public MainMenu(UserService userService, StockMarketService marketService, BondMarketService bondService,
                     PortfolioService portfolioService) {
         this.userService = userService;
         this.marketService = marketService;
+        this.bondService = bondService;
         this.portfolioService = portfolioService;
     }
 
@@ -72,6 +88,14 @@ public class MainMenu {
         }
     }
 
+    /**
+     * Handles the login flow for the club member.
+     * <p>
+     *     Prompts the user to enter their ID and looks them up via {@link UserService}.
+     *     If found, the user is sent to the{@link MemberMenu}.
+     *     If not found, the registration prompt is shown via {@link #userNotFound()}.
+     * </p>
+     */
     private void sendToMemberMenu() {
         while (true) {
             System.out.println();
@@ -80,7 +104,7 @@ public class MainMenu {
             try {
                 User user = userService.findById(Integer.valueOf(scanner.nextLine()));
                 if (user != null) {
-                    new MemberMenu(user, marketService, portfolioService).start();
+                    new MemberMenu(user, marketService, bondService, portfolioService).start();
                     start();
                     break;
                 } else {
@@ -93,6 +117,14 @@ public class MainMenu {
 
     }
 
+    /**
+     * Handles the login flow for the club Leader.
+     * <p>
+     *     Prompts the leader password and validates it via {@link PasswordValidator}.
+     *     If the password is correct, the leader is sent to the {@link LeaderMenu}.
+     *     If incorrect, an error is displayed and the application returns to the main menu.
+     * </p>
+     */
     private void sendToLeaderMenu() {
         while (true) {
             ConsolePrinter.printMenuHeader("Logging is as 'Club Leader'");
@@ -133,41 +165,51 @@ public class MainMenu {
 
             String choice = scanner.nextLine().trim().toLowerCase();
 
-            // If the user chooses "yes" register, they will be sent here.
-            // The user's full name, email adress and birth date is collected and a new user ID is generated.
             if (choice.equals("1")) {
-                    // register user here
                     System.out.println();
                     ConsolePrinter.printMenuTitle("──────────────────────────────────────── Register New User ────────────────────────────────────────");
                     ConsolePrinter.printMenuHeader("Thank you for your interest in Investeringsklubben! You're about to register as a new user and need" +
                             "\nto answer a few questions in order to get access to the platform and start investing.");
 
                     System.out.println();
-                    ConsolePrinter.printMenuTitle("────────────────────────────────── Register New User ─ Step 1/3 ──────────────────────────────────");
+                    ConsolePrinter.printMenuTitle("────────────────────────────────── Register New User ─ Step 1/4 ──────────────────────────────────");
                     ConsolePrinter.printMenuOption("Please, enter your full name: ");
                     String fullName = scanner.nextLine();
 
                     System.out.println();
-                ConsolePrinter.printMenuTitle("────────────────────────────────── Register New User ─ Step 2/3 ──────────────────────────────────");
+                ConsolePrinter.printMenuTitle("────────────────────────────────── Register New User ─ Step 2/4 ──────────────────────────────────");
                     ConsolePrinter.printMenuOption("Please, enter your e-mail address: ");
                     String email = scanner.nextLine();
 
                     System.out.println();
-                ConsolePrinter.printMenuTitle("────────────────────────────────── Register New User ─ Step 3/3 ──────────────────────────────────");
+                ConsolePrinter.printMenuTitle("────────────────────────────────── Register New User ─ Step 3/4 ──────────────────────────────────");
                     ConsolePrinter.printMenuOption("Please, enter your birthday (using this format: dd-mm-yyyy): ");
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
                     LocalDate birthDate = LocalDate.parse(scanner.nextLine(), formatter);
 
+                System.out.println();
+                ConsolePrinter.printMenuTitle("────────────────────────────────── Register New User ─ Step 4/4 ──────────────────────────────────");
+                ConsolePrinter.printMenuOption("Please, enter your initial investment (minimum 10.000 DKK): ");
+                double initialCash = 0;
+                while (true) {
+                    try {
+                        initialCash = Double.parseDouble(scanner.nextLine().trim().replace(",", "."));
+                        InitialInvestmentValidator.validate(initialCash);
+                        break;
+                    } catch (NumberFormatException e) {
+                        ConsolePrinter.printError("Please enter a valid number.");
+                    } catch (InvalidInputException e) {
+                        ConsolePrinter.printError(e.getMessage());
+                    }
+                }
 
-                 // Generates a new user ID by finding the highest existing ID and adding 1.
                 int newUserId = userService.getAllUsers().stream()
                             .mapToInt(User::getUserId)
                             .max()
                             .orElse(0) + 1;
 
-                // The new user will be created with a default starting balance(100.000 DKK).
                 LocalDate createdAt = LocalDate.now();
-                User newUser = new User(newUserId, fullName, email, birthDate, 100000.0, createdAt, createdAt);
+                User newUser = new User(newUserId, fullName, email, birthDate, initialCash, createdAt, createdAt);
 
                 userService.addUser(newUser);
                 System.out.println();
@@ -175,6 +217,8 @@ public class MainMenu {
                 ConsolePrinter.printConfirmation("Registration complete!");
                 ConsolePrinter.printMenuOption("Your unique user ID is " + Colors.ANSI_BLUE + newUserId + Colors.MENUOPTION + " and will be used to log in to your account from now on." +
                         "\nWelcome to Investeringsklubben! ٩(◕‿◕)۶" + Colors.RESET);
+                CSVWriter.append(AppConstants.USERS_FILE,newUser);
+
                 start();
                 break;
             } else if (choice.equals("2")) {

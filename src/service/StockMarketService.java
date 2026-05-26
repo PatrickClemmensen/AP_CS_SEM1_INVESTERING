@@ -5,12 +5,11 @@ import util.constants.Colors;
 import util.csv.CSVReader;
 import util.printing.ConsolePrinter;
 
+import java.util.*;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+
 
 /**
  * Service responsible for loading and querying the stock market.
@@ -20,7 +19,6 @@ import java.util.Map;
  * </p>
  */
 public class StockMarketService {
-    // TODO: declare a Map to store stocks by ticker
     private final Map<String, Stock> stockMap = new HashMap<>();
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("dd-MM-yyyy");
@@ -31,7 +29,6 @@ public class StockMarketService {
      * @param stockFilePath the path to the CSV file containing stock market data.
      */
     public StockMarketService(String stockFilePath) {
-        // TODO: call a private load() method
         load(stockFilePath);
     }
 
@@ -47,9 +44,7 @@ public class StockMarketService {
      * @param path the file path to the CSV file to load
      */
     private void load(String path) {
-        // TODO: use CSVReader to read stockMarket.csv
         for(String[] row : CSVReader.read(path)){
-        // TODO: parse each row into a Stock object
             String ticker = row[0].trim();
             String name = row[1].trim();
             String sector = row[2].trim();
@@ -60,13 +55,10 @@ public class StockMarketService {
             String market = row[7].trim();
             LocalDate lastUpdated = LocalDate.parse(row[8].trim(), FORMATTER);
 
-            // TODO: put each Stock into the map using its ticker as key
             Stock stock = new Stock(ticker, name, sector, price, currency, rating, dividendYield, market, lastUpdated);
             stockMap.put(ticker, stock);
         }
 
-
-        // Hint: row order is ticker;name;sector;price;currency;rating;dividend_yield;market;last_updated
     }
 
     /**
@@ -78,7 +70,6 @@ public class StockMarketService {
      * @return the matching {@link Stock}, or {@code null} if no stock with that ticker exists
      */
     public Stock findByTicker(String ticker) {
-        // TODO: return the Stock for the given ticker, or null if not found
         return stockMap.get(ticker.toUpperCase());
     }
 
@@ -88,10 +79,35 @@ public class StockMarketService {
      * @return a {@link Collection} of all {@link Stock} objects; never {@code null}
      */
     public Collection<Stock> getAllStocks() {
-        // TODO: return all stocks in the map
         return stockMap.values();
     }
 
+    /**
+     * Searches the stock market for stocks matching the given input.
+     * <p>
+     *     The search is case-insensitive against ticker symbol,
+     *     company name and sector. A Stock is included in the results if any
+     *     of these fields contain the search input as a substring.
+     * </p>
+     *
+     * @param searchInput the search string entered by the user
+     * @return a {@link Collection} of {@link Stock} objects matching the search input;
+     *          never a {@code null}, may be empty if no matches are found
+     */
+    public Collection<Stock> searchStocks(String searchInput) {
+        String search = searchInput.trim().toLowerCase();
+
+        Collection<Stock> results = new ArrayList<>();
+
+        for (Stock stock : stockMap.values()) {
+            if (stock.getTicker().toLowerCase().contains(search) ||
+                    stock.getName().toLowerCase().contains(search) ||
+                    stock.getSector().toLowerCase().contains(search)) {
+                results.add(stock);
+            }
+        }
+        return results;
+    }
 
     /**
      * Prints a formatted table of all available stocks to the console
@@ -101,16 +117,25 @@ public class StockMarketService {
      *     Each stock row is formatted using {@link Stock#toString()}.
      * </p>
      */
-    public void viewMarket(){
-        System.out.println(Colors.MENUHEADER + "\n=========================================== STOCK MARKET ===========================================\n" + Colors.RESET);
+    public void viewMarket() {
+        viewMarket(stockMap.values());
+    }
+
+    /**
+     * Prints a formatted table of the given stocks to the console.
+     * <p>
+     *     Used to display either the full market or a filtered subset of stocks,
+     *     such as search results. Each stock row is formatted using {@link Stock#toString()}.
+     * </p>
+     *
+     * @param stocks the collection of stocks to display
+     */
+    public void viewMarket(Collection<Stock> stocks){
+        ConsolePrinter.printMenuTitle("──────────────────────────────────────────── Stock Market ─────────────────────────────────────────");
         System.out.printf("%-10s %-40s %-22s %16s %8s%n", "TICKER", "NAME", "SECTOR", "PRICE", "CURR");
-        System.out.println("-".repeat(100));
-        ConsolePrinter.printMenuHeader("\n============================== STOCK MARKET ===============================\n");
-        System.out.printf("%-10s %-30s %-14s %11s %6s%n", "TICKER", "NAME", "SECTOR", "PRICE", "CURR");
-        //sssSystem.out.println("-".repeat(75));
         ConsolePrinter.printSeparator();
 
-        for(Stock stock : stockMap.values()){
+        for(Stock stock : stocks){
             System.out.println(Colors.MENUOPTION + stock + Colors.RESET);
         }
     }

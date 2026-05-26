@@ -2,6 +2,10 @@ package ui.enums;
 
 import util.printing.ConsolePrinter;
 
+/**
+ * Represents the selectable option in the main login menu,
+ * each with a numeric value and a display label.
+ */
 public enum MainOption {
 
     OPTION_1(1, "Club Member"),
@@ -12,6 +16,8 @@ public enum MainOption {
     private final String label;
 
     /**
+     * Constructs a {@code MainOption} with the given numeric value and display label.
+     *
      * @param value the numeric choice the user types to select this option
      * @param label the description of the value that will be printed
      */

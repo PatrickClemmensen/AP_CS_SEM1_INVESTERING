@@ -1,14 +1,17 @@
 package ui.enums;
 
 /**
- * Represents the selectable options in the Member menu, each with a numeric value and a display label.
+ * Represents the selectable options in the Member menu,
+ * each with a numeric value and a display label.
  */
 public enum MemberOption {
 
     OPTION_1(1, "View portfolio"),
-    OPTION_2(2, "Buy stock"),
-    OPTION_3(3, "Sell Stock"),
-    OPTION_4(4, "View Market"),
+    OPTION_2(2, "Buy asset"),
+    OPTION_3(3, "Sell asset"),
+    OPTION_4(4, "View market"),
+    OPTION_5(5, "View transaction history"),
+    OPTION_6(6, "Search for stocks"),
     EXIT(0, "Logout");
 
     private final int value;

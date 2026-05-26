@@ -1,9 +1,11 @@
 package ui.menus;
 
 import model.asset.Stock;
+import model.asset.Bond;
 import model.portfolio.Position;
 import model.portfolio.User;
 import model.transaction.Transaction;
+import service.BondMarketService;
 import service.PortfolioService;
 import service.StockMarketService;
 import ui.enums.MemberOption;
@@ -14,6 +16,9 @@ import util.printing.ColorFormatter;
 import util.printing.ConsolePrinter;
 import util.validation.MenuChoiceValidator;
 
+import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -25,25 +30,28 @@ import java.util.Scanner;
  *           <li>Sell Stock</li>
  *           <li>View Market</li>
  *       </ul>
- *
  */
 public class MemberMenu {
-    private User user;
-    private StockMarketService marketService;
-    private PortfolioService portfolioService;
-    private Scanner scanner = new Scanner(System.in);
+    private final User user;
+    private final StockMarketService marketService;
+    private final BondMarketService bondMarketService;
+    private final PortfolioService portfolioService;
+    private final Scanner scanner = new Scanner(System.in);
 
     /**
-     * Constructor for MemberMenu object.
      * Creates a MemberMenu for the given user, backed by the provided services.
-     * @param user the logged-in user
-     * @param marketService service for accessing stock market data
-     * @param portfolioService service for loading and managing the user's portfolio
+     *
+     * @param user              the logged-in user
+     * @param marketService     service for accessing stock market data
+     * @param bondMarketService service for accessing bond market data
+     * @param portfolioService  service for loading and managing the user's portfolio
      */
-    public MemberMenu(User user, StockMarketService marketService, PortfolioService portfolioService) {
-        this.user = user;
-        this.marketService = marketService;
-        this.portfolioService = portfolioService;
+    public MemberMenu(User user, StockMarketService marketService,
+                      BondMarketService bondMarketService, PortfolioService portfolioService) {
+        this.user               = user;
+        this.marketService      = marketService;
+        this.bondMarketService  = bondMarketService;
+        this.portfolioService   = portfolioService;
         portfolioService.loadPortfolio(user);
     }
 
@@ -55,10 +63,11 @@ public class MemberMenu {
         show();
         while (true) {
             try {
-                int input = MenuChoiceValidator.readChoice(scanner, 0, 4, "logout");
+                int input = MenuChoiceValidator.readChoice(scanner, 0, 6, "logout");
                 MemberOption option = MemberOption.fromChoice(input);
                 if (option == MemberOption.EXIT) {
                     ConsolePrinter.printConfirmation("Logout successful!");
+                    show();
                     break;
                 }
                 handleChoice(option);
@@ -86,14 +95,17 @@ public class MemberMenu {
 
     /**
      * Directs the user to the appropriate method based on the chosen menu option.
+     *
      * @param option the menu option chosen by the logged-in user
      */
     private void handleChoice(MemberOption option) {
         switch (option) {
             case OPTION_1 -> viewPortfolio();
-            case OPTION_2 -> buyStock();
-            case OPTION_3 -> sellStock();
+            case OPTION_2 -> buyAsset();
+            case OPTION_3 -> sellAsset();
             case OPTION_4 -> viewMarket();
+            case OPTION_5 -> viewTransactions();
+            case OPTION_6 -> searchStocks();
         }
     }
 
@@ -113,38 +125,101 @@ public class MemberMenu {
     private void printPortfolio() {
         System.out.println();
         ConsolePrinter.printMenuTitle("──────────────────────────────────────────── My Portfolio ─────────────────────────────────────────");
-        System.out.printf("%-10s %-29s %8s %16s %16s %16s%n", "TICKER", "NAME", "QTY", "AVG BUY", "VALUE", "POT. GAIN");
-        ConsolePrinter.printSeparator();
 
         if (user.getPortfolio().getPositions().isEmpty()) {
             ConsolePrinter.printError("Your portfolio is empty.");
-        } else {
-            for (Position position : user.getPortfolio().getPositions()) {
+            return;
+        }
+
+        // --- Stocks ---
+        List<Position> stockPositions = user.getPortfolio().getPositions().stream()
+                .filter(p -> p.getAsset() instanceof Stock)
+                .toList();
+
+        if (!stockPositions.isEmpty()) {
+            ConsolePrinter.printMenuHeader("Stocks");
+            System.out.printf("%-10s %-29s %8s %16s %16s %16s%n",
+                    "TICKER", "NAME", "QTY", "AVG BUY", "PRICE", "POT. GAIN");
+            ConsolePrinter.printSeparator();
+            for (Position position : stockPositions) {
                 ConsolePrinter.printMenuOption(position.toString());
             }
             System.out.println();
-            ConsolePrinter.printMenuTitle("────────────────────────────────────────── Portfolio Summary ──────────────────────────────────────");
-            double cashBalance = user.getCashBalance();
-            double totalHoldings = user.getPortfolio().getTotalValue();
-            double totalValue = user.getCashBalance() + user.getPortfolio().getTotalValue();
-            double totalGain = user.getPortfolio().getTotalGain();
-            ConsolePrinter.printMenuOption("Total Holdings: " + ColorFormatter.conditionalAmountColor(totalHoldings) + Colors.MENUOPTION + " | Total Value: " + ColorFormatter.conditionalAmountColor(totalValue) + Colors.MENUOPTION + " | Total Gain: " + ColorFormatter.conditionalAmountColor(totalGain));
-            ConsolePrinter.printMenuOption("Current Cash Balance: " + ColorFormatter.conditionalAmountColor(cashBalance) );
-
-            System.out.println(Colors.MENUOPTION + String.format("%-12s %12.2f DKK     %-10s %s",
-                    "Total Value:", user.getPortfolio().getTotalValue(),
-                    "Total Gain:", totalGainColored) + Colors.RESET);
         }
 
-        show();
+        // --- Bonds ---
+        List<Position> bondPositions = user.getPortfolio().getPositions().stream()
+                .filter(p -> p.getAsset() instanceof Bond)
+                .toList();
+
+        if (!bondPositions.isEmpty()) {
+            ConsolePrinter.printMenuHeader("Bonds");
+            System.out.printf("%-10s %-20s %6s %14s %14s %9s %13s %12s%n",
+                    "TICKER", "NAME", "QTY", "AVG BUY", "PRICE", "COUPON %", "MATURES", "POT. GAIN");
+            ConsolePrinter.printSeparator();
+            for (Position position : bondPositions) {
+                Bond bond = (Bond) position.getAsset();
+                double gain = position.getUnrealizedGain();
+                String gainColored = gain >= 0
+                        ? Colors.ANSI_GREEN + String.format("%+12.2f", gain) + Colors.RESET
+                        : Colors.ANSI_RED   + String.format("%12.2f",  gain) + Colors.RESET;
+
+                ConsolePrinter.printMenuOption(String.format(
+                        "%-10s %-20s %6d %14.2f %14.2f %8.2f%% %13s %s",
+                        bond.getTicker(),
+                        bond.getName(),
+                        position.getQuantity(),
+                        position.getAverageBuyPrice(),
+                        bond.getPrice(),
+                        bond.getCouponRate(),
+                        bond.getMaturityDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")),
+                        gainColored));
+            }
+            System.out.println();
+        }
+
+        // --- Summary ---
+        ConsolePrinter.printMenuTitle("────────────────────────────────────────── Portfolio Summary ──────────────────────────────────────");
+        double cashBalance   = user.getCashBalance();
+        double totalHoldings = user.getPortfolio().getTotalValue();
+        double totalValue    = cashBalance + totalHoldings;
+        double totalGain     = user.getPortfolio().getTotalGain();
+        ConsolePrinter.printMenuOption("Total Holdings: " + ColorFormatter.conditionalAmountColor(totalHoldings)
+                + Colors.MENUOPTION + " | Total Value: " + ColorFormatter.conditionalAmountColor(totalValue)
+                + Colors.MENUOPTION + " | Total Gain: " + ColorFormatter.conditionalAmountColor(totalGain));
+        ConsolePrinter.printMenuOption("Current Cash Balance: " + ColorFormatter.conditionalAmountColor(cashBalance));
     }
+
+    /**
+     * Prompts the user to choose between buying a stock or a bond,
+     * then routes to the appropriate buy method.
+     */
+    private void buyAsset() {
+        System.out.println();
+        ConsolePrinter.printMenuHeader("What would you like to buy?");
+        ConsolePrinter.printMenuOption("1. Stock");
+        ConsolePrinter.printMenuOption("2. Bond");
+        ConsolePrinter.printMenuOption("0. Cancel");
+        ConsolePrinter.printSeparator();
+
+        int choice = MenuChoiceValidator.readChoice(scanner, 0, 2, "cancel");
+        switch (choice) {
+            case 1 -> buyStock();
+            case 2 -> buyBond();
+            case 0 -> {
+                ConsolePrinter.printConfirmation("Purchase cancelled.");
+                show();
+            }
+        }
+    }
+
+
     /**
      * Handles the flow for when a user wants to buy a stock.
      * <p>
      * The method shows the market, asks the user to enter a ticker and quantity for the wanted stock, shows a trade summary, and asks for confirmation before completing the purchase.
      * </p>
      *      * The user can cancel the purchase by pressing 0 when asked for a ticker.
-     * If the user confirms the purchase, the method calls {@link PortfolioService#buy(User, String, int)} to perform the actual buying logic
      * The {@link Transaction} is then saved to the transactions csv file.
      * </p>
      * Invalid tickers, invalid quantities, insufficient funds or other buy errors are handled by displaying an error message.
@@ -155,7 +230,6 @@ public class MemberMenu {
         while (true) {
             marketService.viewMarket();
 
-            // --- ticker input ---
             ConsolePrinter.printMenuOption("Please enter ticker:    |   Or press 0 to cancel");
             String ticker = scanner.nextLine().trim().toUpperCase();
 
@@ -171,7 +245,6 @@ public class MemberMenu {
                 continue;
             }
 
-            // --- quantity input ---
             ConsolePrinter.printMenuOption("Enter quantity for " + stock.getTicker() + ":");
             int quantity;
             try {
@@ -181,13 +254,11 @@ public class MemberMenu {
                 continue;
             }
 
-            // --- quantity validation before summary ---
             if (quantity <= 0){
                 ConsolePrinter.printError("Quantity must be greater than 0.");
                 continue;
             }
 
-            // --- trade summary ---
             double pricePerStock = stock.getPrice();
             double totalCost = pricePerStock * quantity;
             double balanceAfterPurchase = user.getCashBalance() - totalCost;
@@ -201,7 +272,6 @@ public class MemberMenu {
             System.out.printf("Balance after purchase: %.2f DKK%n", balanceAfterPurchase);
             ConsolePrinter.printSeparator();
 
-            // --- confirmation ---
             ConsolePrinter.printMenuOption("Confirm purchase? (y / n):");
             String confirmation = scanner.nextLine().trim().toLowerCase();
 
@@ -210,9 +280,8 @@ public class MemberMenu {
                 continue;
             }
 
-            // --- delegate to PortfolioService ---
             try {
-                Transaction transaction = portfolioService.buy(user, ticker, quantity);
+                Transaction transaction = portfolioService.buy(user, stock, quantity);
                 CSVWriter.append(AppConstants.TRANSACTIONS_FILE, transaction);
                 ConsolePrinter.printConfirmation("Purchase completed!");
             } catch (Exception e) {
@@ -220,7 +289,6 @@ public class MemberMenu {
                 continue;
             }
 
-            // --- buy another? ---
             ConsolePrinter.printMenuOption("Buy another stock? (y / n):");
             if (!scanner.nextLine().trim().toLowerCase().equals("y")) {
                 start();
@@ -228,16 +296,127 @@ public class MemberMenu {
             }
         }
     }
-    // TODO: call portfolioService.buy() and handle any exceptions
 
     /**
-     * Handles the flow for when a user wants to buy a stock.
+     * Handles the flow for when a user wants to buy a bond.
+     * <p>
+     *     Shows the bond market, asks for ticker and quantity, displays a trade summary
+     *     including coupon rate and maturity date, and asks for confirmation before
+     *     completing the purchase.
+     *     The {@link Transaction} is saved to the transactions CSV file on confirmation.
+     * </p>
+     * <p>
+     *     The user can cancel by pressing 0 when asked for a ticker.
+     *     Invalid tickers, quantities, or insufficient funds are handled with error messages.
+     * </p>
+     */
+    private void buyBond() {
+        while (true) {
+            bondMarketService.viewMarket();
+
+            ConsolePrinter.printMenuOption("Please enter ticker:    |   Or press 0 to cancel");
+            String ticker = scanner.nextLine().trim().toUpperCase();
+
+            if (ticker.equals("0")) {
+                ConsolePrinter.printConfirmation("Purchase cancelled");
+                show();
+                return;
+            }
+
+            Bond bond = bondMarketService.findByTicker(ticker);
+            if (bond == null) {
+                ConsolePrinter.printError("No bond found with ticker: " + ticker + ". Please try again.");
+                continue;
+            }
+
+            ConsolePrinter.printMenuOption("Enter quantity for " + bond.getTicker() + ":");
+            int quantity;
+            try {
+                quantity = Integer.parseInt(scanner.nextLine().trim());
+            } catch (NumberFormatException e) {
+                ConsolePrinter.printError("Invalid quantity. Please try again.");
+                continue;
+            }
+
+            if (quantity <= 0) {
+                ConsolePrinter.printError("Quantity must be greater than 0.");
+                continue;
+            }
+
+            double pricePerBond         = bond.getPrice();
+            double totalCost            = pricePerBond * quantity;
+            double balanceAfterPurchase = user.getCashBalance() - totalCost;
+
+            ConsolePrinter.printMenuHeader("TRADE SUMMARY");
+            ConsolePrinter.printSeparator();
+            System.out.println("Ticker:                 " + bond.getTicker());
+            System.out.println("Name:                   " + bond.getName());
+            System.out.printf("Coupon Rate:            %.2f%%%n", bond.getCouponRate());
+            System.out.println("Maturity Date:          "
+                    + bond.getMaturityDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+            System.out.println("Quantity:               " + quantity);
+            System.out.printf("Price per bond:         %.2f DKK%n", pricePerBond);
+            System.out.printf("Total cost:             %.2f DKK%n", totalCost);
+            System.out.printf("Balance after purchase: %.2f DKK%n", balanceAfterPurchase);
+            ConsolePrinter.printSeparator();
+
+            ConsolePrinter.printMenuOption("Confirm purchase? (y / n):");
+            if (!scanner.nextLine().trim().toLowerCase().equals("y")) {
+                ConsolePrinter.printError("Purchase cancelled. Starting over...");
+                continue;
+            }
+
+            try {
+                Transaction transaction = portfolioService.buy(user, bond, quantity);
+                CSVWriter.append(AppConstants.TRANSACTIONS_FILE, transaction);
+                ConsolePrinter.printConfirmation("Purchase completed!");
+            } catch (Exception e) {
+                ConsolePrinter.printError(e.getMessage());
+                continue;
+            }
+
+            ConsolePrinter.printMenuOption("Buy another bond? (y / n):");
+            if (!scanner.nextLine().trim().toLowerCase().equals("y")) {
+                show();
+                return;
+            }
+        }
+    }
+
+
+    /**
+     * Prompts the user to choose between selling a stock or a bond,
+     * then routes to the appropriate sell method.
+     */
+    private void sellAsset() {
+        System.out.println();
+        ConsolePrinter.printMenuHeader("What would you like to sell?");
+        ConsolePrinter.printMenuOption("1. Stock");
+        ConsolePrinter.printMenuOption("2. Bond");
+        ConsolePrinter.printMenuOption("0. Cancel");
+        ConsolePrinter.printSeparator();
+
+        int choice = MenuChoiceValidator.readChoice(scanner, 0, 2, "cancel");
+        switch (choice) {
+            case 1 -> sellStock();
+            case 2 -> sellBond();
+            case 0 -> {
+                ConsolePrinter.printConfirmation("Sale cancelled.");
+                show();
+            }
+        }
+    }
+
+
+
+    /**
+     * Handles the flow for when a user wants to sell a stock.
      * <p>
      * The method show the user's portfolio, asks the user to enter a ticker and quantity for the stock they want to sell,
      * shows a trade summary, and asks for confirmation before completing the sale.
      * </p>
      * <p>
-     * The user can cansel the sale by pressing 0 when asked for a ticker.
+     * The user can cancel the sale by pressing 0 when asked for a ticker.
      * If the user confirms the sale, the method calls {@link PortfolioService#sell(User, String, int)} to perform the actual selling logic.
      * The {@link Transaction} is then saved to the transactions csv file.
      * </p>
@@ -250,14 +429,12 @@ public class MemberMenu {
     private void sellStock() {
         while (true){
 
-            //Shows the user's portfolio so they know what they can sell
             printPortfolio();
 
             if (user.getPortfolio().getPositions().isEmpty()) {
                 return;
             }
 
-            // --- ticker input ---
             Position position = null;
             String ticker = "";
 
@@ -277,7 +454,6 @@ public class MemberMenu {
                 }
             }
 
-            // --- quantity input ---
             ConsolePrinter.printMenuOption("Enter quantity:");
             int quantity;
             try {
@@ -292,7 +468,6 @@ public class MemberMenu {
                 continue;
             }
 
-            // --- order summary ---
             double unitPrice = position.getAsset().getPrice();
             double totalProceeds = unitPrice * quantity;
             double projectedCash = user.getCashBalance() + totalProceeds;
@@ -306,7 +481,6 @@ public class MemberMenu {
             ConsolePrinter.printMenuOption("Cash After Sale: " + projectedCash + " DKK");
             ConsolePrinter.printSeparator();
 
-            // --- confirmation ---
             ConsolePrinter.printMenuOption("Confirm sale? (y / n):");
             String confirm = scanner.nextLine().trim().toLowerCase();
 
@@ -315,16 +489,15 @@ public class MemberMenu {
                 continue;
             }
 
-            // --- delegate to PortfolioService ---
             try {
-                portfolioService.sell(user, ticker, quantity);
+                Transaction transaction = portfolioService.sell(user, ticker, quantity);
+                CSVWriter.append(AppConstants.TRANSACTIONS_FILE, transaction);
                 ConsolePrinter.printConfirmation("Sale complete!");
             } catch (Exception e) {
                 ConsolePrinter.printError(e.getMessage());
                 continue;
             }
 
-            // --- sell another? ---
             ConsolePrinter.printMenuOption("Sell another stock? (y / n):");
             if (!scanner.nextLine().trim().toLowerCase().equals("y")) {
                 show();
@@ -333,8 +506,191 @@ public class MemberMenu {
         }
     }
 
+    /**
+     * Handles the flow for when a user wants to sell a bond.
+     * <p>
+     *     Shows the user's portfolio, asks for ticker and quantity, displays an order summary
+     *     including coupon rate and maturity date, and asks for confirmation before completing the sale.
+     *     Shows a warning if the bond has not yet reached its maturity date.
+     *     The {@link Transaction} is saved to the transactions CSV file on confirmation.
+     * </p>
+     * <p>
+     *     The user can cancel by pressing 0 when asked for a ticker.
+     *     Invalid tickers, quantities, or insufficient holdings are handled with error messages.
+     * </p>
+     */
+    private void sellBond() {
+        while (true) {
+            printPortfolio();
+
+            if (user.getPortfolio().getPositions().isEmpty()) {
+                show();
+                return;
+            }
+
+            Position position = null;
+            String ticker = "";
+
+            while (position == null) {
+                ConsolePrinter.printMenuOption("Enter ticker of the bond you would like to sell:   |   Or press 0 to cancel");
+                ticker = scanner.nextLine().trim().toUpperCase();
+
+                if (ticker.equals("0")) {
+                    ConsolePrinter.printConfirmation("Sale cancelled");
+                    show();
+                    return;
+                }
+
+                position = user.getPortfolio().findByTicker(ticker);
+
+                // make sure the position is actually a bond
+                if (position != null && !(position.getAsset() instanceof Bond)) {
+                    ConsolePrinter.printError(ticker + " is not a bond. Please try again.");
+                    position = null;
+                    continue;
+                }
+
+                if (position == null) {
+                    ConsolePrinter.printError("You do not own a bond with that ticker. Please try again.");
+                }
+            }
+
+            ConsolePrinter.printMenuOption("Enter quantity:");
+            int quantity;
+            try {
+                quantity = Integer.parseInt(scanner.nextLine().trim());
+            } catch (NumberFormatException e) {
+                ConsolePrinter.printError("Invalid quantity. Please try again.");
+                continue;
+            }
+
+            if (quantity > position.getQuantity()) {
+                ConsolePrinter.printError("You only own " + position.getQuantity()
+                        + " bonds of " + ticker + ". Starting over...");
+                continue;
+            }
+
+            Bond bond = (Bond) position.getAsset();
+
+            // warn if selling before maturity
+            if (!bond.isMature()) {
+                long daysRemaining = bond.getDaysToMaturity();
+                ConsolePrinter.printError("Warning: This bond matures in " + daysRemaining
+                        + " days. Selling before maturity may result in a loss.");
+                ConsolePrinter.printMenuOption("Are you sure you want to continue? (y / n):");
+                if (!scanner.nextLine().trim().toLowerCase().equals("y")) {
+                    ConsolePrinter.printError("Sale cancelled.");
+                    continue;
+                }
+            }
+
+            double unitPrice     = bond.getPrice();
+            double totalProceeds = unitPrice * quantity;
+            double projectedCash = user.getCashBalance() + totalProceeds;
+
+            ConsolePrinter.printMenuHeader("ORDER SUMMARY");
+            ConsolePrinter.printSeparator();
+            ConsolePrinter.printMenuOption("Ticker:          " + ticker);
+            ConsolePrinter.printMenuOption("Name:            " + bond.getName());
+            ConsolePrinter.printMenuOption("Coupon Rate:     " + bond.getCouponRate() + "%");
+            ConsolePrinter.printMenuOption("Maturity Date:   "
+                    + bond.getMaturityDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+            ConsolePrinter.printMenuOption("Quantity:        " + quantity + " bonds");
+            ConsolePrinter.printMenuOption("Unit Price:      " + unitPrice + " DKK");
+            ConsolePrinter.printMenuOption("Total Proceeds:  " + totalProceeds + " DKK");
+            ConsolePrinter.printMenuOption("Cash After Sale: " + projectedCash + " DKK");
+            ConsolePrinter.printSeparator();
+
+            ConsolePrinter.printMenuOption("Confirm sale? (y / n):");
+            if (!scanner.nextLine().trim().toLowerCase().equals("y")) {
+                ConsolePrinter.printError("Sale cancelled. Starting over...");
+                continue;
+            }
+
+            try {
+                Transaction transaction = portfolioService.sell(user, ticker, quantity);
+                CSVWriter.append(AppConstants.TRANSACTIONS_FILE, transaction);
+                ConsolePrinter.printConfirmation("Sale complete!");
+            } catch (Exception e) {
+                ConsolePrinter.printError(e.getMessage());
+                continue;
+            }
+
+            ConsolePrinter.printMenuOption("Sell another bond? (y / n):");
+            if (!scanner.nextLine().trim().toLowerCase().equals("y")) {
+                show();
+                return;
+            }
+        }
+    }
+
+
+    /**
+     * Displays the current stock market and returns the user to the member menu after wards.
+     */
     private void viewMarket() {
         marketService.viewMarket();
+        show();
+    }
+
+    /**
+     * Displays the logged-in user's full transaction history sorted newest first.
+     * <p>
+     *     Retrieves all transactions via {@link PortfolioService#getTransactionHistory(User)} and
+     *     prints them in a formatted 100-character wide table showing date, order type (BUY/SELL),
+     *     ticker, quantity, and price per share in DKK.
+     *     If the user has no transactions, an informational message is shown instead.
+     * </p>
+     * <p>
+     *     Returns the user to the Club Member menu when done.
+     * </p>
+     */
+    private void viewTransactions() {
+        System.out.println();
+        ConsolePrinter.printMenuTitle("──────────────────────────────────────── Transaction History ───────────────────────────────────────");
+        List<Transaction> history = portfolioService.getTransactionHistory(user);
+        if (history.isEmpty()) {
+            ConsolePrinter.printError("No transactions found.");
+        } else {
+            System.out.printf("%-12s %-8s %-46s %10s %20s%n", "DATE", "TYPE", "TICKER", "QTY", "PRICE/SHARE (DKK)");
+            ConsolePrinter.printSeparator();
+            for (Transaction t : history) {
+                ConsolePrinter.printMenuOption(String.format("%-12s %-8s %-46s %10d %20.2f",
+                        t.getDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")),
+                        t.getOrderType(),
+                        t.getTicker(),
+                        t.getQuantity(),
+                        t.getPrice()
+                ));
+            }
+        }
+        show();
+    }
+
+
+    /**
+     * Handles the search stock flow.
+     * <p>
+     *     Prompts the user to enter a search term and passes it to
+     *     {@link StockMarketService#searchStocks(String)}, which matches against
+     *     ticker symbol, company name, and sector. The results are displayed
+     *     in a formatted market table. If no matches are found, am error message
+     *     is shown instead.
+     *
+     *     Returns the user to the menu whe done.
+     * </p>
+     *
+     */
+    private void searchStocks(){
+        ConsolePrinter.printMenuOption("Search by ticker, name or sector: ");
+        String searchInput = scanner.nextLine();
+        Collection<Stock> results = marketService.searchStocks(searchInput);
+
+        if (results.isEmpty()){
+            ConsolePrinter.printError("No stock found.");
+        } else {
+            marketService.viewMarket(results);
+        }
         show();
     }
 }
