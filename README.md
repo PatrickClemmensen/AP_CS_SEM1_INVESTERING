@@ -6,12 +6,12 @@ Developed as part of the 1st semester cross-disciplinary project at KEA.
 
 ## Group
 
-| Name | GitHub |
-|------|--------|
-| [Name] | [@username] |
-| [Name] | [@username] |
-| [Name] | [@username] |
-| [Name] | [@username] |
+| Name                 | GitHub              |
+|----------------------|---------------------|
+| [Isak Pais]          | [Ispa070]           |
+| [Nicklas Viftrup]    | [Nickichandk]       |
+| [Villa Christensen]  | [Villa123]          |
+| [Patrick Clemmensen] | [PatrickClemmensen] |
 
 ---
 
@@ -131,11 +131,11 @@ project-root/
 
 Built using **Scrum** with two one-week sprints.
 
-|          | Dates | Sprint Goal                                                                                              |
-|----------|---|----------------------------------------------------------------------------------------------------------|
-| Sprint 1 | TBD | A user can log in, browse the market, buy stocks, and view their portfolio — with all data saved to file |
-| Sprint 2 | TBD | TBD                                                                                                      |
-| Sprint 3 | TBD | TBD                                                                                                      |
+| | Dates | Sprint Goal |
+|---|---|---|
+| Sprint 1 | TBD | A user can log in, browse the market, buy and sell stocks, and view their portfolio — with all data saved to file |
+| Sprint 2 | TBD | Portfolio sorting, currency conversion, bond support, and accountant-style reporting |
+
 ---
 
 ## Technical Requirements
